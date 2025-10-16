@@ -1,0 +1,71 @@
+
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 relative">
+    <!-- Background Image -->
+    <div class="absolute inset-0">
+        <img src="{{ url_for('static', filename='images/login-bg.jpg') }}" 
+             alt="Background" 
+             class="w-full h-full object-cover opacity-50">
+        <div class="absolute inset-0 bg-black/40"></div>
+    </div>
+
+    <!-- Registration Card -->
+    <div class="relative z-10 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl w-full max-w-md p-8">
+        <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create an Account</h2>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-4">
+            {{ form.hidden_tag() }}
+
+            <!-- Name -->
+            <div>
+                {{ form.name.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.name(class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none") }}
+                {% if form.name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.name.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div>
+                {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.email(class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none") }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.email.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Password -->
+            <div>
+                {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.password(class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none") }}
+                {% if form.password.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.password.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                {{ form.confirm_password.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.confirm_password(class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none") }}
+                {% if form.confirm_password.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.confirm_password.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" 
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 focus:ring focus:ring-indigo-300 transition duration-200">
+                Register
+            </button>
+
+            <p class="text-sm text-center text-gray-600 mt-4">
+                Already have an account?
+                <a href="{{ url_for('auth.login') }}" class="text-indigo-600 hover:underline">Log in</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
