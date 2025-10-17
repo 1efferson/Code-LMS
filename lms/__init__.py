@@ -5,8 +5,8 @@ from flask import Flask
 from .extensions import db,  login_manager, csrf, bcrypt
 
 # Import blueprints from route files
-from .main.routes import main as main_blueprint
-from .auth.routes import auth as auth_blueprint
+from .main import main as main_blueprint
+from .auth import auth as auth_blueprint
 
 def create_app(config_object='config.Config'):
     """Application factory for the LMS."""

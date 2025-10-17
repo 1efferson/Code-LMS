@@ -8,10 +8,11 @@ venv/
 ------------------------------------
 Python Specific Files
 ------------------------------------
-pycache/
+__pycache__
 *.pyc
 *.log
-instance/  # Flask instance folder (holds SQLite DB/dev config)
+instance/
+
 
 ------------------------------------
 Node/Tailwind Specific Files

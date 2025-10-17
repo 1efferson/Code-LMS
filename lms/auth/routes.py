@@ -6,8 +6,7 @@ from lms import db, bcrypt
 from lms.models import User
 from .forms import RegisterForm, LoginForm
 
-# Define the Blueprint
-auth = Blueprint('auth', __name__, template_folder='templates')
+from . import auth
 
 # ---------------------------
 # Registration route

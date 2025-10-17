@@ -3,7 +3,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 
-main = Blueprint('main', __name__, template_folder='templates')
+from . import main  # import the blueprint from __init__.py
 
 @main.route('/')
 def home():
