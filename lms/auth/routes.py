@@ -1,29 +1,38 @@
 # lms/auth/routes.py
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from lms import db, bcrypt
 from lms.models import User
 from .forms import RegisterForm, LoginForm
-
 from . import auth
+
 
 # ---------------------------
 # Registration route
 # ---------------------------
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+    # Redirect if user is already logged in
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))  # redirect to dashboard if already logged in
+        return redirect(url_for('main.dashboard'))
 
     form = RegisterForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(name=form.name.data, email=form.email.data, password=hashed_password)
-        db.session.add(new_user)
+        # Hash password
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+
+        # Determine role using admin signup code
+        role = 'admin' if form.admin_code.data == current_app.config.get('ADMIN_SIGNUP_CODE') else 'student'
+
+        # Create new user
+        user = User(name=form.name.data, email=form.email.data, password=hashed_pw, role=role)
+        db.session.add(user)
         db.session.commit()
-        flash('Account created successfully! You can now log in.', 'success')
-        return redirect(url_for('auth.login'))
+
+        flash(f'Account created for {form.name.data} as {role}!', 'success')
+        login_user(user)
+        return redirect(url_for('main.dashboard'))
 
     return render_template('auth/register.html', form=form)
 
@@ -42,8 +51,12 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Login successful!', 'success')
+
+            # Redirect to next page if it exists, otherwise dashboard
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.dashboard'))  # redirect to dashboard after login
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
+            return redirect(url_for('main.dashboard'))
         else:
             flash('Invalid email or password.', 'danger')
 
@@ -58,4 +71,10 @@ def login():
 def logout():
     logout_user()
     flash('You have been logged out.', 'info')
+
+    # Optional: support for ?next= redirect if added later
+    next_page = request.args.get('next')
+    if next_page and next_page.startswith('/'):
+        return redirect(next_page)
+
     return redirect(url_for('auth.login'))

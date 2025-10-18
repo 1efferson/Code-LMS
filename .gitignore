@@ -30,3 +30,9 @@ Generated CSS
 OS Generated Files
 ------------------------------------
 .DS_Store
+
+
+------------------------------------
+Sensitive Information
+------------------------------------
+.env

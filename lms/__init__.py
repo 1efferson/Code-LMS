@@ -8,8 +8,10 @@ from .extensions import db,  login_manager, csrf, bcrypt
 from .main import main as main_blueprint
 from .auth import auth as auth_blueprint
 
+
 def create_app(config_object='config.Config'):
     """Application factory for the LMS."""
+
     
     # Initialize Flask app
     app = Flask('lms', instance_relative_config=True)

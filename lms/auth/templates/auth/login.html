@@ -11,29 +11,54 @@
         <div class="absolute inset-0 bg-black/40"></div>
     </div>
 
-    <!-- Login Form -->
+    <!-- Login Form Card -->
     <div class="z-10 bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4">
-        <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-6">Welcome Back</h2>
+        <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-6">Welcome</h2>
+
+    
+        <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {# map categories to explicit classes so Tailwind picks them up #}
+                    {% if category == 'success' %}
+                        {% set flash_classes = 'mb-4 p-3 rounded-lg font-semibold bg-green-100 text-green-800' %}
+                    {% elif category == 'danger' or category == 'error' %}
+                        {% set flash_classes = 'mb-4 p-3 rounded-lg font-semibold bg-red-100 text-red-700' %}
+                    {% elif category == 'info' %}
+                        {% set flash_classes = 'mb-4 p-3 rounded-lg font-semibold bg-blue-100 text-blue-800' %}
+                    {% else %}
+                        {% set flash_classes = 'mb-4 p-3 rounded-lg font-semibold bg-gray-100 text-gray-800' %}
+                    {% endif %}
+                    <div class="{{ flash_classes }}" role="alert" aria-live="polite">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+
 
         <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6">
-            <!-- CSRF token sent back with the form -->
             {{ form.hidden_tag() }}
+
             <div>
-                <label for="email" class="block mb-1 font-medium text-gray-700">Email</label>
-                <input type="email" id="email" name="email" required
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150">
+                {{ form.email.label(class="block mb-1 font-medium text-gray-700") }}
+                {{ form.email(class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150", type="email", required=True) }}
+                {% for error in form.email.errors %}
+                    <small class="text-red-600">{{ error }}</small>
+                {% endfor %}
             </div>
 
             <div>
-                <label for="password" class="block mb-1 font-medium text-gray-700">Password</label>
-                <input type="password" id="password" name="password" required
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150">
+                {{ form.password.label(class="block mb-1 font-medium text-gray-700") }}
+                {{ form.password(class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150", type="password", minlength="6", required=True) }}
+                {% for error in form.password.errors %}
+                    <small class="text-red-600">{{ error }}</small>
+                {% endfor %}
             </div>
 
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out">
-                Sign In
-            </button>
+            {{ form.submit(class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out") }}
         </form>
 
         <p class="text-center text-sm text-gray-600 mt-6">
