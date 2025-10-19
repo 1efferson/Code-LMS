@@ -1,0 +1,38 @@
+
+------------------------------------
+Virtual Environment
+------------------------------------
+venv/
+.venv/
+
+------------------------------------
+Python Specific Files
+------------------------------------
+__pycache__
+*.pyc
+*.log
+instance/
+
+
+------------------------------------
+Node/Tailwind Specific Files
+------------------------------------
+Dependency directory
+node_modules/
+
+NPM debug logs
+npm-debug.log*
+
+Generated CSS 
+/lms/static/css/output.css
+
+------------------------------------
+OS Generated Files
+------------------------------------
+.DS_Store
+
+
+------------------------------------
+Sensitive Information
+------------------------------------
+.env
