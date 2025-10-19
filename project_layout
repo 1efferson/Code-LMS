@@ -1,0 +1,58 @@
+
+
+
+        Code-lms/
+        │
+        ├── app.py
+        ├── config.py
+        ├── package.json
+        ├── package-lock.json
+        ├── project_layout
+        ├── README.md
+        ├── tailwind.config.js
+        |
+        ├── instance/
+        |   └── lms.db
+        │
+        ├── lms/
+        │   ├── __init__.py
+        |   ├── extensions.py
+        │   │
+        |   |
+        |   |── models/
+        |   |   ├── __init__.py
+        |   |   ├── user.py
+        |   |
+        |   |
+        │   ├── static/
+        │   │   ├── css/
+        |   |   |   ├── dashboard.css
+        │   │   │   ├── input.css
+        │   │   │   └── output.css
+        │   │   ├── js/
+        |   |   |   └──dashboard.js
+        |   |   |
+        │   │   └── images/
+        │   │
+        │   ├── templates/
+        │   │   ├── base.html
+        │   │   ├── home.html
+        │   │   └── dashboard.html
+        │   │
+        │   ├── auth/
+        |   │   ├── __init__.py
+        |   │   ├── routes.py
+        |   │   ├── forms.py
+        |   │   └── templates/
+        |   │       └── auth/
+        |   │           ├── login.html
+        |   │           └── register.html
+        │   |
+        │   │
+        │   ├── main/
+        │      ├── __init__.py
+        │      └── routes.py
+        │   
+        │   
+        │
+        └── venv/
