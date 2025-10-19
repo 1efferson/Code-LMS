@@ -1,0 +1,30 @@
+# Python cache
+__pycache__/
+__pycache__
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Node
+node_modules/
+
+# Flask instance folder
+instance/
+
+# Environment files
+.env
+
+# macOS
+.DS_Store
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# CSS build output
+output.css
