@@ -1,0 +1,227 @@
+/* Course Catalog CSS */
+
+
+/* CSS Variables */
+:root {
+    --primary-blue: #2563EB; /* Your base.html theme color */
+    --level-beginner: #00BFA5; /* Teal */
+    --level-intermediate: #F57C00; /* Deep Orange */
+    --level-advanced: #6A1B9A; /* Deep Purple */
+    --bg-light: #f9f9fb;
+    --text-dark: #1f2937;
+    --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    --transition-speed: 0.3s;
+}
+
+/* 1. Global & Layout Reset */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    scroll-behavior: smooth; /* Smooth scrolling for the fixed nav */
+}
+
+/* 2. Main Content Wrapper */
+.catalog-container {
+    width: 100%;
+    overflow-x: hidden;
+    /* Ensures scrollable content for the 100vh sections */
+}
+
+/* 3. Level Section Styling (The 100vh requirement) */
+.course-level-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 10%; /* Responsive padding */
+    justify-content: center; /* Center content vertically */
+    box-sizing: border-box;
+    position: relative;
+}
+
+.section-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    border-bottom: 4px solid;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+    transition: color var(--transition-speed);
+}
+
+/* Theme colors for headers */
+#beginner .section-header h2 { border-color: var(--level-beginner); color: var(--level-beginner); }
+#intermediate .section-header h2 { border-color: var(--level-intermediate); color: var(--level-intermediate); }
+#advanced .section-header h2 { border-color: var(--level-advanced); color: var(--level-advanced); }
+
+/* 4. Fixed Side Navigation */
+.level-nav {
+    position: fixed;
+    top: 50%; /* Center vertically */
+    left: 20px;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: var(--card-shadow);
+    transition: all var(--transition-speed) ease;
+    border-left: 5px solid transparent;
+}
+
+.nav-link:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link.active {
+    border-left: 5px solid var(--primary-blue);
+    color: var(--primary-blue);
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Level specific highlights for nav on hover */
+#beginner-link:hover { border-left-color: var(--level-beginner); }
+#intermediate-link:hover { border-left-color: var(--level-intermediate); }
+#advanced-link:hover { border-left-color: var(--level-advanced); }
+
+
+/* 5. Course Grid and Cards */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px; /* Optional: cap max width */
+    margin: 0 auto;
+}
+
+.course-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px); /* Lift effect */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    padding: 1rem 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Level-specific card headers */
+.beginner-header { background-color: var(--level-beginner); }
+.intermediate-header { background-color: var(--level-intermediate); }
+.advanced-header { background-color: var(--level-advanced); }
+
+.card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.card-body h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0;
+    color: var(--primary-blue);
+}
+
+.card-body p {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.card-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: right;
+}
+
+.enroll-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-speed), transform 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+/* Button theme for enrollment - use primary blue */
+.enroll-btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.enroll-btn-primary:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.enroll-btn-locked {
+    background-color: #e5e7eb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* 6. Mobile Responsiveness */
+@media (max-width: 768px) {
+    .course-level-section {
+        padding: 5rem 5%;
+        /* Do not force 100vh on mobile to prevent height issues with dynamic content and navigation */
+        min-height: auto;
+    }
+
+    .section-header h2 {
+        font-size: 2rem;
+    }
+
+    .level-nav {
+        /* Move fixed nav to the top for mobile visibility */
+        position: static;
+        transform: none;
+        flex-direction: row;
+        justify-content: center;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .course-grid {
+        grid-template-columns: 1fr;
+    }
+}
