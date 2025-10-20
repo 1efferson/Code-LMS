@@ -7,6 +7,7 @@ from .extensions import db,  login_manager, csrf, bcrypt
 # Import blueprints from route files
 from .main import main as main_blueprint
 from .auth import auth as auth_blueprint
+from .courses import courses as courses_blueprint
 
 
 def create_app(config_object='config.Config'):
@@ -32,6 +33,7 @@ def create_app(config_object='config.Config'):
     # Register Blueprints
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    app.register_blueprint(courses_blueprint, url_prefix='/courses')
     
     # User loader
     from .models.user import User

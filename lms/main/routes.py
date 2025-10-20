@@ -1,6 +1,6 @@
 
 # lms/main/routes.py
-from flask import Blueprint, render_template
+from flask import render_template
 from flask_login import login_required, current_user
 
 from . import main  # import the blueprint from __init__.py
