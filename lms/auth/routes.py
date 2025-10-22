@@ -1,6 +1,6 @@
 # lms/auth/routes.py
 
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, session
 from flask_login import login_user, logout_user, login_required, current_user
 from lms import db, bcrypt
 from lms.models import User
@@ -32,6 +32,7 @@ def register():
 
         flash(f'Account created for {form.name.data} as {role}!', 'success')
         login_user(user)
+        current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
         return redirect(url_for('main.dashboard'))
 
     return render_template('auth/register.html', form=form)
@@ -50,6 +51,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
+            current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
             flash('Login successful!', 'success')
 
             # Redirect to next page if it exists, otherwise dashboard
