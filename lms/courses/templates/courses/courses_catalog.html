@@ -1,0 +1,102 @@
+<!-- lms/courses/templates/courses_catalog -->
+ {% extends "base.html" %}
+
+{% block title %}Course Catalog | Code-LMS{% endblock %}
+
+{% block head_css %}
+<link rel="stylesheet" href="{{ url_for('courses.static', filename='css/course_catalog.css') }}">
+<script src="{{ url_for('static', filename='js/course_catalog.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="level-nav">
+        <a href="#beginner" id="beginner-link" class="nav-link">Beginner</a>
+        <a href="#intermediate" id="intermediate-link" class="nav-link">Intermediate</a>
+        <a href="#advanced" id="advanced-link" class="nav-link">Advanced</a>
+    </div>
+
+    <div class="catalog-container">
+
+        <!-- BEGINNER LEVEL SECTION -->
+        <section id="beginner" class="course-level-section">
+            <div class="section-header">
+                <h2>Beginner Level: Foundations</h2>
+            </div>
+            <div class="course-grid">
+                
+                <!-- Loop through courses and display 'Beginner' ones -->
+                {% for course in courses if course.level == 'Beginner' %}
+                <div class="course-card" data-level="{{ course.level }}">
+                    <div class="card-header beginner-header">{{ course.category or 'Programming' }}</div>
+                    <div class="card-body">
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description or 'No description available.' }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <!-- This link now points to the course detail page -->
+                        <a href="{{ url_for('courses.course_detail', slug=course.slug) }}" class="enroll-btn enroll-btn-primary">
+                            Start Now
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </section>
+
+        <!-- INTERMEDIATE LEVEL SECTION -->
+        <section id="intermediate" class="course-level-section">
+            <div class="section-header">
+                <h2>Intermediate Level: Practical Application</h2>
+            </div>
+            <div class="course-grid">
+                
+                <!-- Loop through courses and display 'Intermediate' ones -->
+                {% for course in courses if course.level == 'Intermediate' %}
+                <div class="course-card" data-level="{{ course.level }}">
+                    <div class="card-header intermediate-header">{{ course.category or 'Development' }}</div>
+                    <div class="card-body">
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description or 'No description available.' }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('courses.course_detail', slug=course.slug) }}" class="enroll-btn enroll-btn-primary">
+                            Enroll Now
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </section>
+
+        <!-- ADVANCED LEVEL SECTION -->
+        <section id="advanced" class="course-level-section">
+            <div class="section-header">
+                <h2>Advanced Level: Full-Stack Development</h2>
+            </div>
+            <div class="course-grid">
+                
+                <!-- Loop through courses and display 'Advanced' ones -->
+                {% for course in courses if course.level == 'Advanced' %}
+                <div class="course-card" data-level="{{ course.level }}">
+                    <div class="card-header advanced-header">{{ course.category or 'Full-Stack' }}</div>
+                    <div class="card-body">
+                        <h3>{{ course.title }}</h3>
+                        <p>{{ course.description or 'No description available.' }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('courses.course_detail', slug=course.slug) }}" class="enroll-btn enroll-btn-primary">
+                            Enroll Now
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </section>
+
+    </div>
+
+{% endblock %}
