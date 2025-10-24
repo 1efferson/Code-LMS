@@ -3,10 +3,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect # Import CSRF protection
+from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
 
 # Initialize extensions (without the application yet)
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 csrf = CSRFProtect() # Initialize CSRFProtect
+migrate = Migrate()

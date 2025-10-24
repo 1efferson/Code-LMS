@@ -1,0 +1,81 @@
+<!-- lms/courses/templates/course_details -->
+
+
+{% extends "base.html" %}
+{% block title %}{{ course.title }} | LMS{% endblock %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-6 py-12">
+
+  <!-- Header -->
+  <div class="text-center mb-10">
+    <h1 class="text-4xl font-bold text-gray-900 mb-3">{{ course.title }}</h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      {{ course.description or "No description available for this course yet." }}
+    </p>
+
+    {% if course.instructor %}
+      <p class="text-sm text-gray-500 mt-2">
+        Taught by 
+        <span class="font-medium text-gray-800">
+          {{ course.instructor.full_name or course.instructor.username }}
+        </span>
+      </p>
+    {% endif %}
+  </div>
+
+  <!-- Enrollment Card -->
+  <div class="flex justify-center mb-10">
+    <div class="bg-white shadow-lg rounded-2xl p-6 w-full sm:w-2/3 md:w-1/2 text-center border border-gray-100">
+      {% if not is_enrolled %}
+        <form action="{{ url_for('courses.enroll', slug=course.slug) }}" method="POST">
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+          >
+            Enroll Now
+          </button>
+        </form>
+      {% else %}
+        <a
+          href="{{ url_for('courses.course_lessons', slug=course.slug) }}"
+          class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+        >
+          Go to Lessons
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Course Outline -->
+  <div class="mt-12">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Course Outline</h2>
+
+    {% if course.modules %}
+      <div class="space-y-6">
+        {% for module in course.modules %}
+          <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition duration-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">{{ module.title }}</h3>
+            </div>
+            <ul class="divide-y divide-gray-200">
+              {% for lesson in module.lessons %}
+                <li class="flex justify-between items-center px-6 py-3 hover:bg-white transition duration-150">
+                  <div class="flex items-center gap-3">
+                    <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                    <p class="text-gray-800 font-medium">{{ lesson.title }}</p>
+                  </div>
+                  <span class="text-sm text-gray-500">{{ lesson.duration or "—" }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-500">Modules for this course will appear here soon.</p>
+    {% endif %}
+  </div>
+
+</section>
+{% endblock %}
