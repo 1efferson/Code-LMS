@@ -21,11 +21,12 @@ class Module(db.Model):
     # A Module has many Lessons
     # lazy='dynamic' allows us to use .order_by() and .count() in the template
     lessons = db.relationship(
-        'Lesson', 
-        backref='module', 
-        lazy='dynamic', 
-        cascade='all, delete-orphan'
-    )
+    'Lesson',
+    backref='module',
+    lazy=True,
+    cascade='all, delete-orphan',
+    order_by='Lesson.order'
+)
 
     def __repr__(self):
         return f'<Module {self.title}>'

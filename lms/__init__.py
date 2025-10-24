@@ -18,7 +18,7 @@ def load_user(user_id):
     if not user_id:
         return None
     try:
-        # import inside function to avoid circular import at module import time
+        # importing inside function to avoid circular import at module import time
         from .models.user import User
         return db.session.get(User, int(user_id))
     except Exception:
@@ -52,7 +52,7 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(courses_blueprint, url_prefix='/courses')
 
-    # Import models so Alembic sees metadata (side-effect import)
-    from . import models  # lms/models/__init__.py should import all models
+    # Importing models so Alembic sees metadata (side-effect import)
+    from . import models 
     
     return app

@@ -81,7 +81,7 @@ def course_lessons(slug):
     first_module = course.modules.order_by(Module.order).first()
     first_lesson = None
     if first_module:
-        first_lesson = first_module.lessons.order_by(Lesson.order).first()
+        first_lesson = first_module.lessons[0] if first_module.lessons else None
     
     # If there's a first lesson, redirect to the specific lesson player route
     if first_lesson:
@@ -104,7 +104,7 @@ def course_lessons(slug):
 # -------------------------------
 #  Specific Lesson Player
 # -------------------------------
-@courses.route('/<course_slug>/lessons/<lesson_slug>')
+@courses.route('/<course_slug>/lessons/<lesson_slug>', methods=['GET', 'POST'])
 @login_required
 def course_lesson(course_slug, lesson_slug):
     """
@@ -124,7 +124,7 @@ def course_lesson(course_slug, lesson_slug):
     modules = course.modules.order_by(Module.order).all()
 
     return render_template(
-        'courses/course_lessons.html',
+        'courses/course_lesson.html',
         course=course,
         current_lesson=lesson, # The specific lesson to play
         modules=modules        # All modules for the sidebar
