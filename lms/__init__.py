@@ -8,7 +8,7 @@ import logging
 # Import blueprints from route files
 from .main import main as main_blueprint
 from .auth import auth as auth_blueprint
-from .courses import courses as courses_blueprint
+from .courses.routes import courses as courses_blueprint
 
 # Module-level user loader (lazy-import User to avoid circular imports)
 @login_manager.user_loader

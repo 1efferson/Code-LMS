@@ -13,19 +13,14 @@ from . import auth
 # ---------------------------
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    # Redirect if user is already logged in
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('courses.index'))  # updated
 
     form = RegisterForm()
     if form.validate_on_submit():
-        # Hash password
         hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-
-        # Determine role using admin signup code
         role = 'admin' if form.admin_code.data == current_app.config.get('ADMIN_SIGNUP_CODE') else 'student'
 
-        # Create new user
         user = User(name=form.name.data, email=form.email.data, password=hashed_pw, role=role)
         db.session.add(user)
         db.session.commit()
@@ -33,7 +28,8 @@ def register():
         flash(f'Account created for {form.name.data} as {role}!', 'success')
         login_user(user)
         current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
-        return redirect(url_for('main.dashboard'))
+
+        return redirect(url_for('courses.index'))  # updated
 
     return render_template('auth/register.html', form=form)
 
@@ -44,7 +40,7 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))  # already logged in? go to dashboard
+        return redirect(url_for('courses.index'))  # updated
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -54,11 +50,10 @@ def login():
             current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
             flash('Login successful!', 'success')
 
-            # Redirect to next page if it exists, otherwise dashboard
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('courses.index'))  # updated
         else:
             flash('Invalid email or password.', 'danger')
 
@@ -74,7 +69,6 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
 
-    # Optional: support for ?next= redirect if added later
     next_page = request.args.get('next')
     if next_page and next_page.startswith('/'):
         return redirect(next_page)

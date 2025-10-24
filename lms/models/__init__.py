@@ -6,9 +6,10 @@ from lms import login_manager
 #  Import model modules so they are registered with SQLAlchemy metadata.
 from .user import User
 from .course import Course
+from .enrollment import Enrollment
 
 # export names for convenience
-__all__ = ["User", "Course"]
+__all__ = ["User", "Course", "Enrollment"]
 
 
 # user loader 
