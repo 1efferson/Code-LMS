@@ -22,7 +22,7 @@
                 {% if current_user.is_authenticated %}
                     <!-- Show these links if the user IS logged in -->
                     <li><a href="{{ url_for('courses.index') }}" class="text-gray-700 hover:text-blue-500">Courses</a></li>
-                    <li><a href="#" class="text-gray-700 hover:text-blue-500">View Profile</a></li> <!-- Placeholder link -->
+                    <li><a href="{{ url_for('main.profile') }}" class="text-gray-700 hover:text-blue-500">View Profile</a></li>
                     <li><a href="{{ url_for('auth.logout') }}" class="text-gray-700 hover:text-blue-500">Logout</a></li>
                 {% else %}
                     <!-- Show these links if the user is NOT logged in -->
