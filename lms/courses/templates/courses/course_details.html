@@ -18,7 +18,7 @@
       <p class="text-sm text-gray-500 mt-2">
         Taught by 
         <span class="font-medium text-gray-800">
-          {{ course.instructor.full_name or course.instructor.username }}
+          {{ course.instructor.name or course.instructor.email }}
         </span>
       </p>
     {% endif %}

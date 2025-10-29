@@ -9,6 +9,9 @@ import logging
 from .main import main as main_blueprint
 from .auth import auth as auth_blueprint
 from .courses.routes import courses as courses_blueprint
+from .admin import admin as admin_blueprint
+from lms.commands import promote_admin
+
 
 # Module-level user loader (lazy-import User to avoid circular imports)
 @login_manager.user_loader
@@ -35,6 +38,9 @@ def create_app(config_object='config.Config'):
     
     # Load configuration
     app.config.from_object(config_object)
+
+    # promoting a user email to admin
+    app.cli.add_command(promote_admin)
     
     # Initialize extensions
     db.init_app(app)
@@ -51,6 +57,8 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(courses_blueprint, url_prefix='/courses')
+    app.register_blueprint(admin_blueprint, url_prefix='/admin')
+
 
     # Importing models so Alembic sees metadata (side-effect import)
     from . import models 
