@@ -180,5 +180,38 @@
     </footer>
 <script src="{{ url_for('static', filename='js/loader.js') }}"></script>
 {% block scripts %}{% endblock %}
+
+    <!-- Script to make flash messages disappear -->
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Find all flash messages
+            const alertElements = document.querySelectorAll('[role="alert"]');
+            
+            alertElements.forEach(function(element) {
+                // Wait 5 seconds
+                setTimeout(function() {
+                    // Add transition for fading out
+                    element.style.transition = 'opacity 0.5s ease-out';
+                    element.style.opacity = '0';
+                    
+                    // After fade out, remove the element from the DOM
+                    setTimeout(function() {
+                        element.remove();
+                    }, 500); // 500ms = 0.5s (must match transition duration)
+                    
+                }, 5000); // 5000ms = 5 seconds
+            });
+
+            logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(event) {
+                    if (!confirm('Are you sure you want to logout?')) {
+                        event.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>

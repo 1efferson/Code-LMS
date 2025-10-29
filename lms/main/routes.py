@@ -39,3 +39,8 @@ def dashboard():
         events=events,
         news=news, hide_navbar=True
     )
+
+@main.route('/profile')
+@login_required
+def profile():
+    return render_template('main/profile.html', user=current_user)
