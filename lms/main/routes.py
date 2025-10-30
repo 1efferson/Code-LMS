@@ -1,43 +1,29 @@
 
 # lms/main/routes.py
-from flask import render_template
+from flask import render_template, redirect, url_for
 from flask_login import login_required, current_user
+from lms.models import Enrollment
 
 from . import main  # import the blueprint from __init__.py
 
 @main.route('/')
 def home():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
     return render_template('main/home.html')
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    # Temporary mock data
-    courses = [
-        {"title": "Tkinter Basics", "desc": "Learn to build GUIs in Python.", "url": "#"},
-        {"title": "Python Introductory Course", "desc": "Core Python fundamentals.", "url": "#"},
-        {"title": "Python Turtle", "desc": "Visual programming with Turtle graphics.", "url": "#"},
-    ]
-
-    attendance = {"attended": 8, "total": 10}
-
-    events = [
-        {"title": "Python Bootcamp", "date": "Oct 10, 2025"},
-        {"title": "Code Review Workshop", "date": "Oct 15, 2025"},
-    ]
-
-    news = [
-        {"title": "New Library Resources", "summary": "More e-books added to the Python collection."},
-        {"title": "Upcoming Hackathon", "summary": "Participate in the Cellusys coding challenge."},
-    ]
+    user = current_user
+    # Get course objects the user is enrolled in
+    enrollments = Enrollment.query.filter_by(user_id=user.id).all()
+    courses = [enrollment.course for enrollment in enrollments if enrollment.course]
 
     return render_template(
         'main/dashboard.html',
-        user=current_user,
+        user=user,
         courses=courses,
-        attendance=attendance,
-        events=events,
-        news=news, hide_navbar=True
     )
 
 @main.route('/profile')
