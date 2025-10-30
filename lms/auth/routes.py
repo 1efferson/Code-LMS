@@ -14,7 +14,7 @@ from . import auth
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('courses.index'))  # updated
+        return redirect(url_for('main.dashboard'))  # updated
 
     form = RegisterForm()
     if form.validate_on_submit():
@@ -29,7 +29,7 @@ def register():
         login_user(user)
         current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
 
-        return redirect(url_for('courses.index'))  # updated
+        return redirect(url_for('main.dashboard'))  # updated
 
     return render_template('auth/register.html', form=form)
 
@@ -40,7 +40,7 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('courses.index'))  # updated
+        return redirect(url_for('main.dashboard'))  # updated
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -53,7 +53,7 @@ def login():
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
-            return redirect(url_for('courses.index'))  # updated
+            return redirect(url_for('main.dashboard'))  # updated
         else:
             flash('Invalid email or password.', 'danger')
 
