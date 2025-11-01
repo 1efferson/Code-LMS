@@ -1,6 +1,3 @@
-<!-- lms/courses/templates/course_details -->
-
-
 {% extends "base.html" %}
 {% block title %}{{ course.title }} | LMS{% endblock %}
 
@@ -26,50 +23,98 @@
 
   <!-- Enrollment Card -->
   <div class="flex justify-center mb-10">
-    <div class="bg-white shadow-lg rounded-2xl p-6 w-full sm:w-2/3 md:w-1/2 text-center border border-gray-100">
-      {% if not is_enrolled %}
-        <form action="{{ url_for('courses.enroll', slug=course.slug) }}" method="POST">
-           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button
-            type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
-          >
-            Enroll Now
-          </button>
-        </form>
-      {% else %}
-        <a
-          href="{{ url_for('courses.course_lessons', slug=course.slug) }}"
-          class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+  <div class="bg-white border border-gray-100 shadow-md rounded-xl px-6 py-4 text-center w-auto">
+    {% if not is_enrolled %}
+      <form action="{{ url_for('courses.enroll', slug=course.slug) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
         >
-          Go to Lessons
-        </a>
-      {% endif %}
-    </div>
+          Enroll Now
+        </button>
+      </form>
+    {% else %}
+      <a
+        href="{{ url_for('courses.course_lessons', slug=course.slug) }}"
+        class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+      >
+        Go to Lessons
+      </a>
+    {% endif %}
   </div>
+</div>
 
-  <!-- Course Outline -->
+
+
+  <!-- Course Outline (Timeline Style with Alpine.js Collapse) -->
   <div class="mt-12">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Course Outline</h2>
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 border-b pb-3">📚 Course Curriculum</h2>
 
     {% if course.modules %}
-      <div class="space-y-6">
+      <div class="relative pl-6 sm:pl-10">
+        <!-- Vertical Line Connector -->
+        <div class="absolute left-0 sm:left-4 top-0 bottom-0 w-1 bg-gray-200 rounded-full"></div>
+
         {% for module in course.modules %}
-          <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition duration-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-              <h3 class="text-lg font-semibold text-gray-900">{{ module.title }}</h3>
+          <!-- x-data sets up the Alpine component: 'open' tracks the collapse state -->
+          <div class="mb-10 relative" x-data="{ open: true }">
+            
+            <!-- Icon for Module -->
+            <div class="absolute -left-6 sm:-left-6 top-0 h-full w-6 flex justify-center items-start z-10">
+                <div class="w-8 h-8 bg-blue-600 rounded-full shadow-lg flex items-center justify-center ring-4 ring-white">
+                    <!-- Icon for Module (e.g., Book or Folder) -->
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.5l8 4.5V20l-8-4.5-8 4.5V11l8-4.5zm0 0l-8-4.5m8 4.5V20"/></svg>
+                </div>
             </div>
-            <ul class="divide-y divide-gray-200">
-              {% for lesson in module.lessons %}
-                <li class="flex justify-between items-center px-6 py-3 hover:bg-white transition duration-150">
-                  <div class="flex items-center gap-3">
-                    <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
-                    <p class="text-gray-800 font-medium">{{ lesson.title }}</p>
-                  </div>
-                  <span class="text-sm text-gray-500">{{ lesson.duration or "—" }}</span>
-                </li>
-              {% endfor %}
-            </ul>
+
+            <!-- Module Card -->
+            <div class="ml-4 sm:ml-8 bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden">
+                
+                <!-- Module Title (Clickable/Toggle Header) -->
+                <!-- x-on:click toggles the 'open' state -->
+                <div class="flex justify-between items-center p-4 hover:bg-gray-50 transition duration-150 border-b cursor-pointer" @click="open = !open">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3">
+                        <!-- Icon to show collapse state -->
+                        <svg class="w-5 h-5 text-gray-500 transform transition duration-300" 
+                            :class="{ 'rotate-90': open, 'rotate-0': !open }" 
+                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Module {{ loop.index }}: {{ module.title }}
+                    </h3>
+                    <span class="text-sm text-blue-600 font-medium">
+                        <!--  |list|length for SQLAlchemy query -->
+                        {{ module.lessons|list|length }} Lessons
+                    </span>
+                </div>
+
+                <!-- Lessons List -->
+                <!-- x-show collapses the list based on 'open' state -->
+                <ul class="divide-y divide-gray-100 bg-gray-50" x-show="open" x-collapse>
+                    {% for lesson in module.lessons %}
+                        <li class="flex justify-between items-center px-4 py-3 hover:bg-white transition duration-150">
+                            
+                            <!-- Lesson Content -->
+                            <div class="flex items-center gap-3">
+                                <!-- Lesson Icon (e.g., Play Button) -->
+                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-3.707-9.293a1 1 0 000 1.414L9.586 12l-3.293 3.293a1 1 0 001.414 1.414L11 13.414l3.293 3.293a1 1 0 001.414-1.414L12.414 12l3.293-3.293a1 1 0 00-1.414-1.414L11 10.586 7.707 7.293a1 1 0 00-1.414 0z" clip-rule="evenodd" /></svg>
+                                
+                                <p class="text-gray-800 font-medium">
+                                    {{ loop.index }}. {{ lesson.title }}
+                                    {% if is_enrolled %}
+                                        <!-- Corrected parameter names to course_slug and lesson_slug -->
+                                        <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=lesson.slug) }}" class="text-blue-500 hover:text-blue-700 text-sm ml-2 font-normal">(Start Lesson)</a>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            <!-- Lesson Duration -->
+                            <span class="text-sm text-gray-500">{{ lesson.duration or "—" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
           </div>
         {% endfor %}
       </div>
@@ -79,4 +124,5 @@
   </div>
 
 </section>
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 {% endblock %}

@@ -19,8 +19,14 @@ from sqlalchemy import select # Added select for explicit queries
 @login_required
 def index():
     """Display all published courses."""
-    # Note: If Course.query is a simple query, this is fine, but using db.session.execute is preferred with joinedload
-    courses_list = Course.query.filter_by(published=True).order_by(Course.created_at.desc()).all()
+    stmt = (
+        select(Course)
+        .options(joinedload(Course.instructor))  # if we want to preload relationships
+        .where(Course.published == True)
+        .order_by(Course.created_at.desc())
+    )
+
+    courses_list = db.session.execute(stmt).scalars().all()
     return render_template('courses/courses_catalog.html', courses=courses_list)
 
 
@@ -32,7 +38,7 @@ def index():
 def course_detail(slug):
     """Display details for a single course, eagerly loading the instructor (Fix for 'Taught By')."""
     
-    # FIX: Use db.select() and joinedload() to fetch the course and instructor in one query
+    # Use db.select() and joinedload() to fetch the course and instructor in one query
     course = db.session.execute(
         select(Course)
         .filter_by(slug=slug, published=True)
@@ -122,7 +128,7 @@ def course_lesson(course_slug, lesson_slug):
     """
     Shows the course player with a specific lesson active.
     """
-    # FIX: Use db.select() and joinedload() to fetch the course and instructor
+    # Use db.select() and joinedload() to fetch the course and instructor
     course = db.session.execute(
         select(Course)
         .filter_by(slug=course_slug, published=True)
@@ -158,36 +164,42 @@ def course_lesson(course_slug, lesson_slug):
         is_complete=is_complete
     )
 
-
 # -------------------------------
-#  Mark Lesson as Complete (MISSING ROUTE ADDED)
+#  Mark Lesson as Complete
 # -------------------------------
 @courses.route('/<lesson_slug>/complete', methods=['POST'])
 @login_required
 def mark_lesson_complete(lesson_slug):
-    """Marks a specific lesson as completed by the current user."""
-    
     lesson = Lesson.query.filter_by(slug=lesson_slug).first_or_404()
-    
-    existing_completion = LessonCompletion.query.filter_by(
+
+    # Check if already marked
+    completion = LessonCompletion.query.filter_by(
         user_id=current_user.id,
         lesson_id=lesson.id
     ).first()
 
-    if existing_completion:
+    if completion:
         flash('This lesson is already marked as complete.', 'info')
     else:
-        completion = LessonCompletion(
-            user_id=current_user.id, 
-            lesson_id=lesson.id
-        )
+        completion = LessonCompletion(user_id=current_user.id, lesson_id=lesson.id)
         db.session.add(completion)
         db.session.commit()
         flash('Lesson marked as complete!', 'success')
-        
-    return redirect(url_for('courses.course_lesson', 
-                            course_slug=lesson.module.course.slug, 
-                            lesson_slug=lesson_slug))
+
+    # Update enrollment after marking completion
+    enrollment = Enrollment.query.filter_by(
+        user_id=current_user.id,
+        course_id=lesson.module.course.id
+    ).first()
+    if enrollment:
+        enrollment.check_and_update_completion()
+
+    return redirect(url_for(
+        'courses.course_lesson',
+        course_slug=lesson.module.course.slug,
+        lesson_slug=lesson.slug
+    ))
+
 
 
 # -------------------------------
@@ -196,10 +208,8 @@ def mark_lesson_complete(lesson_slug):
 @courses.route('/<lesson_slug>/unmark', methods=['POST'])
 @login_required
 def unmark_lesson_complete(lesson_slug):
-    """Removes the lesson completion record for the current user."""
-    
     lesson = Lesson.query.filter_by(slug=lesson_slug).first_or_404()
-    
+
     completion = LessonCompletion.query.filter_by(
         user_id=current_user.id,
         lesson_id=lesson.id
@@ -209,9 +219,17 @@ def unmark_lesson_complete(lesson_slug):
         db.session.delete(completion)
         db.session.commit()
         flash('Lesson completion status removed.', 'warning')
-    else:
-        flash('This lesson was not marked as complete.', 'info')
-        
-    return redirect(url_for('courses.course_lesson', 
-                            course_slug=lesson.module.course.slug, 
-                            lesson_slug=lesson_slug))
+
+    # Recalculate enrollment status after unmarking
+    enrollment = Enrollment.query.filter_by(
+        user_id=current_user.id,
+        course_id=lesson.module.course.id
+    ).first()
+    if enrollment:
+        enrollment.check_and_update_completion()
+
+    return redirect(url_for(
+        'courses.course_lesson',
+        course_slug=lesson.module.course.slug,
+        lesson_slug=lesson.slug
+    ))

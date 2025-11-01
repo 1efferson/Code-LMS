@@ -1,32 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic HTML setup -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Dynamic title block -->
     <title>{% block title %}LMS{% endblock %}</title>
+
+    <!-- CSS stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
     <link rel="stylesheet" href="{{ url_for('main.static', filename='css/loader.css') }}">
+
+    <!-- Favicon (small logo shown in browser tab) -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/code-lms-logo.png') }}">
 
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <!-- Flash message animation JS -->
     <script src="{{ url_for('static', filename='js/base_flash_msg.js') }}" defer></script>
+
+    <!-- Allow child templates to add more CSS -->
     {% block head_css %}{% endblock %}
 </head>
 
+
 <body class="bg-white min-h-screen flex flex-col font-barriecito" style="margin: 0; padding: 0; overflow-x: hidden;">
 
-
+    <!-- Show navbar unless 'hide_navbar' is True (useful for login/register pages) -->
     {% if not hide_navbar %}
 <header class="bg-gray-800 shadow-xl sticky top-0 z-50">
     <div class="w-full px-4 sm:px-6 lg:px-8">  
         <div class="flex justify-between items-center h-16">
             
+            <!-- Site Logo and Name -->
             <a href="{{ url_for('main.home') }}" 
-               class="text-2xl font-extrabold tracking-tight text-indigo-400 hover:text-indigo-300 transition duration-150 ease-in-out">
+            class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-indigo-400 hover:text-indigo-300 transition duration-150 ease-in-out">
+                <img src="{{ url_for('static', filename='images/code-lms-logo.png') }}" 
+                    alt="CodeLMS Logo" class="w-8 h-8 object-contain">
                 CODE-LMS
             </a>
 
+            <!-- Desktop Navigation Menu -->
             <nav class="hidden md:flex md:space-x-8 items-center">
                 <ul class="flex space-x-6 items-center">
+                    
+                    <!-- Always visible 'Home' link -->
                     <li>
                         <a href="{{ url_for('main.home') }}" 
                            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
@@ -34,6 +54,7 @@
                         </a>
                     </li>
                     
+                    <!-- Show these links only if user is logged in -->
                     {% if current_user.is_authenticated %}
                         <li>
                             <a href="{{ url_for('courses.index') }}" 
@@ -42,6 +63,17 @@
                             </a>
                         </li>
 
+                        <!-- Profile avatar with user initials -->
+                        <li class="relative ml-4 pl-4 border-l border-gray-700">
+                            <a href="{{ url_for('main.profile') }}" class="flex items-center space-x-2 group">
+                                <span class="sr-only">View Profile</span>
+                                <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm font-medium ring-2 ring-transparent group-hover:ring-indigo-400 transition duration-150">
+                                    {{ current_user.get_initials() }} 
+                                </div>
+                            </a>
+                        </li>
+
+                        <!-- Admin Dashboard link (only visible to admin users) -->
                         {% if current_user.is_admin %}
                             <li>
                                 <a href="{{ url_for('admin.admin_index') }}" 
@@ -50,24 +82,9 @@
                                 </a>
                             </li>
                         {% endif %}
-                        
-                        <li class="relative ml-4 pl-4 border-l border-gray-700">
-                            <a href="#" class="flex items-center space-x-2 group">
-                                <span class="sr-only">View Profile</span>
-                                <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm font-medium ring-2 ring-transparent group-hover:ring-indigo-400 transition duration-150">
-                                    {# Call the new method on the current_user object #}
-                                    {{ current_user.get_initials() }} 
-                                </div>
-                            </a>
-                        </li>
-                        
-                        <li>
-                            <a href="{{ url_for('auth.logout') }}" 
-                               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-md transition duration-150 ease-in-out">
-                                Logout
-                            </a>
-                        </li>
+
                     {% else %}
+                        <!-- If user is NOT logged in -->
                         <li>
                             <a href="{{ url_for('auth.login') }}" 
                                class="text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150">
@@ -84,6 +101,7 @@
                 </ul>
             </nav>
 
+            <!-- Mobile menu button (hamburger icon) -->
             <div class="md:hidden">
                 <button type="button" class="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white p-2 rounded-md" aria-controls="mobile-menu" aria-expanded="false">
                     <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -95,6 +113,7 @@
         </div>
     </div>
 
+    <!-- Mobile navigation dropdown (hidden by default) -->
     <div class="md:hidden hidden" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
@@ -116,11 +135,14 @@
     </div>
 </header>
 {% endif %}
+
+<!-- Flash message container (for success/info/warning messages) -->
 <div id="flash-message-container" class="fixed top-24 right-0 z-50 p-4 space-y-3 w-full max-w-sm sm:max-w-md pointer-events-none">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
             
+            <!-- Color scheme for each message category -->
             {% set color = {
                 'success': 'bg-green-100 text-green-800 border-green-400',
                 'danger': 'bg-red-100 text-red-800 border-red-400',
@@ -128,20 +150,16 @@
                 'warning': 'bg-yellow-100 text-yellow-800 border-yellow-400'
             }.get(category, 'bg-gray-100 text-gray-800 border-gray-400') %}
 
-            <div class="p-4 rounded-lg shadow-xl pointer-events-auto transition-all duration-500 ease-in-out" 
-                role="alert">
-                
+            <!-- Flash message card -->
+            <div class="p-4 rounded-lg shadow-xl pointer-events-auto transition-all duration-500 ease-in-out" role="alert">
                 <div class="flex items-start border-l-4 p-2 {{ color }}">
-                    
                     <div class="flex-shrink-0 mr-3">
                         <span class="font-bold text-lg leading-none">!</span>
                     </div>
-
                     <div>
                         <strong class="font-semibold capitalize block">{{ category }}</strong> 
                         <p class="text-sm mt-0.5">{{ message }}</p>
                     </div>
-
                 </div>
             </div>
             {% endfor %}
@@ -149,17 +167,14 @@
     {% endwith %}
 </div>
 
-
-  <div class="loader">
+<!-- Page loader animation (shown during slow loads) -->
+<div class="loader">
   <svg width="100" height="100" viewBox="0 0 100 100">
     <defs>
       <mask id="clipping">
         <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
         <polygon points="25,25 75,25 50,75" fill="white"></polygon>
         <polygon points="50,25 75,75 25,75" fill="white"></polygon>
-        <polygon points="35,35 65,35 50,65" fill="white"></polygon>
-        <polygon points="35,35 65,35 50,65" fill="white"></polygon>
-        <polygon points="35,35 65,35 50,65" fill="white"></polygon>
         <polygon points="35,35 65,35 50,65" fill="white"></polygon>
       </mask>
     </defs>
@@ -168,50 +183,50 @@
 </div>
 
 
-    <main class="flex-grow">  <!-- Removed p-10 -->
-        
-        {% block content %}{% endblock %}
-    </main>
+<!-- Main content area (where child templates inject content) -->
+<main class="flex-grow">
+    {% block content %}{% endblock %}
+</main>
 
-    <footer class="bg-white text-black py-4 mt-10">
-        <div class="container mx-auto text-center">
-            <p>&copy; Cellusys Academy | All rights reserved 2025.</p>
-        </div>
-    </footer>
+<!-- Footer -->
+<footer class="bg-white text-black py-4 mt-10">
+    <div class="container mx-auto text-center">
+        <p>&copy; Cellusys Academy | All rights reserved 2025.</p>
+    </div>
+</footer>
+
+<!-- Loader script -->
 <script src="{{ url_for('static', filename='js/loader.js') }}"></script>
+
+<!-- Optional script block for specific pages -->
 {% block scripts %}{% endblock %}
 
-    <!-- Script to make flash messages disappear -->
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            // Find all flash messages
-            const alertElements = document.querySelectorAll('[role="alert"]');
-            
-            alertElements.forEach(function(element) {
-                // Wait 5 seconds
+<!-- Automatically hide flash messages after 5 seconds -->
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const alertElements = document.querySelectorAll('[role="alert"]');
+        
+        alertElements.forEach(function(element) {
+            setTimeout(function() {
+                element.style.transition = 'opacity 0.5s ease-out';
+                element.style.opacity = '0';
                 setTimeout(function() {
-                    // Add transition for fading out
-                    element.style.transition = 'opacity 0.5s ease-out';
-                    element.style.opacity = '0';
-                    
-                    // After fade out, remove the element from the DOM
-                    setTimeout(function() {
-                        element.remove();
-                    }, 500); // 500ms = 0.5s (must match transition duration)
-                    
-                }, 5000); // 5000ms = 5 seconds
-            });
-
-            logoutBtn = document.getElementById('logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(event) {
-                    if (!confirm('Are you sure you want to logout?')) {
-                        event.preventDefault();
-                    }
-                });
-            }
+                    element.remove();
+                }, 500);
+            }, 5000);
         });
-    </script>
+
+        // Confirmation dialog for logout
+        logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function(event) {
+                if (!confirm('Are you sure you want to logout?')) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

@@ -15,7 +15,7 @@ from lms.models.user import User # Assuming your User model is imported correctl
 def get_instructors_query():
     """Returns a query of users who can be instructors (role is 'admin' or 'instructor')."""
     
-    # FIX: Filter users where role is explicitly 'instructor' or 'admin'
+    #Filter users where role is explicitly 'instructor' or 'admin'
     return User.query.filter(
         User.role.in_(['admin', 'instructor']) 
     ).order_by(User.name).all()
@@ -23,7 +23,7 @@ def get_instructors_query():
 def display_instructor_label(user):
     """Formats the label displayed in the dropdown using the user's name."""
     
-    # FIX: Use user.name and user.email for clear display
+    #Use user.name and user.email for clear display
     return f"{user.name} ({user.email})"
 
 # --- Course Management Forms ---

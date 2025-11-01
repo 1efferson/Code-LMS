@@ -1,13 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ course.title }} | Lesson{% endblock %}
-
-{#
-  HELPER MACRO: Generates the full YouTube Embed URL with parameters
-  This ensures we always use the /embed/ format and add ?rel=0 to limit related videos.
-#}
+{# --- HELPER MACRO: Generate YouTube embed URLs --- #}
 {% macro get_embed_url(content_url) %}
   {% set video_id = "" %}
-  {# 1. Extract the video ID based on the URL format #}
   {% if 'embed/' in content_url %}
     {% set parts = content_url.split('/') %}
     {% set video_id = parts[-1].split('?')[0].split('&')[0] %}
@@ -17,155 +12,171 @@
       {% set video_id = parts[1].split('&')[0] %}
     {% endif %}
   {% endif %}
-  
   {% if video_id %}
-    {# 2. Reconstruct the full embed URL with desired parameters #}
     {{ "https://www.youtube.com/embed/" ~ video_id ~ "?rel=0&autoplay=1" }}
   {% else %}
-    {# Fallback for non-YouTube or missing URLs #}
     {{ content_url }}
   {% endif %}
 {% endmacro %}
-
-
 {% block content %}
-<section class="max-w-7xl mx-auto px-6 py-8">
-
-  <div class="mb-6">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ course.title }}</h1>
-    {% if current_lesson %}
-    <p class="text-gray-500">Now playing: <span class="font-semibold">{{ current_lesson.title }}</span></p>
-    {% else %}
-    <p class="text-gray-500">No lesson selected.</p>
-    {% endif %}
-  </div>
-
-  <div class="flex flex-col lg:flex-row gap-8">
-
-    <div class="flex-1">
-      <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-lg mb-4">
-        {% if current_lesson and current_lesson.content_url %}
-          {# Use the new macro to get the correct embed URL with ?rel=0 #}
-          <iframe
-            class="w-full h-full"
-            src="{{ get_embed_url(current_lesson.content_url) }}"
-            title="{{ current_lesson.title }}"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        {% else %}
-          <div class="flex items-center justify-center h-full text-white text-lg p-8 text-center">
-            {% if current_lesson %}
-              No video available for this lesson.
+<section class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-400 py-10 px-6">
+  <div class="max-w-7xl mx-auto space-y-8">
+    <header class="text-white">
+      <h1 class="text-3xl md:text-4xl font-bold">{{ course.title }}</h1>
+      {% if current_lesson %}
+        <p class="opacity-80 mt-1">Now playing: <span class="font-semibold">{{ current_lesson.title }}</span></p>
+      {% else %}
+        <p class="opacity-70 mt-1">No lesson selected.</p>
+      {% endif %}
+    </header>
+    <div class="flex flex-col gap-10">
+      {# ---- MAIN VIDEO SECTION (Reduced to 80% Width) ---- #}
+      <div class="relative w-full aspect-video mx-auto lg:w-[80%]">
+        {# Main video player with higher z-index #}
+        <div class="absolute inset-0 rounded-2xl overflow-hidden shadow-xl bg-black/50 backdrop-blur-sm border border-white/10 z-20"> {# Added z-20 here #}
+          {% if current_lesson and current_lesson.content_url %}
+            <iframe
+              class="w-full h-full"
+              src="{{ get_embed_url(current_lesson.content_url) }}"
+              title="{{ current_lesson.title }}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          {% else %}
+            <div class="flex items-center justify-center h-full text-white text-lg p-8 text-center">
+              {% if current_lesson %}
+                No video available for this lesson.
+              {% else %}
+                Select a lesson to begin.
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+        {# --- SIDE PREVIEW VIDEOS (Now behind the main video) --- #}
+        {% set lessons = [] %}
+        {% for module in modules %}
+          {% for l in module.lessons.all() %}
+            {% set _ = lessons.append(l) %}
+          {% endfor %}
+        {% endfor %}
+        {% set current_index = lessons.index(current_lesson) if current_lesson in lessons else -1 %}
+        {% set prev_lesson = lessons[current_index - 1] if current_index > 0 else None %}
+        {% set next_lesson = lessons[current_index + 1] if current_index + 1 < lessons|length else None %}
+        
+        {# PREVIOUS VIDEO: z-index removed or set lower #}
+        {% if prev_lesson %}
+          {% set prev_video_id = get_embed_url(prev_lesson.content_url).split('/')[-1].split('?')[0] %}
+          <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=prev_lesson.slug) }}"
+             class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0"> {# Changed z-10 to z-0 or simply removed it #}
+            <img src="https://img.youtube.com/vi/{{ prev_video_id }}/mqdefault.jpg" alt="" class="object-cover w-full h-full opacity-80">
+            <div class="absolute inset-0 flex items-center justify-center text-white font-medium text-sm bg-black/30">Previous</div>
+          </a>
+        {% endif %}
+        
+        {# NEXT VIDEO: z-index removed or set lower #}
+        {% if next_lesson %}
+          {% set next_video_id = get_embed_url(next_lesson.content_url).split('/')[-1].split('?')[0] %}
+          <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=next_lesson.slug) }}"
+             class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0"> {# Changed z-10 to z-0 or simply removed it #}
+            <img src="https://img.youtube.com/vi/{{ next_video_id }}/mqdefault.jpg" alt="" class="object-cover w-full h-full opacity-80">
+            <div class="absolute inset-0 flex items-center justify-center text-white font-medium text-sm bg-black/30">Up Next</div>
+          </a>
+        {% endif %}
+        
+      </div>
+      
+      {# ---- CURRENT LESSON DETAILS (BELOW VIDEO) ---- #}
+      {% if current_lesson %}
+        <div class="bg-white/10 backdrop-blur-sm border border-white/10 p-6 rounded-2xl shadow-lg text-white">
+          <h2 class="text-xl font-semibold mb-2">{{ current_lesson.title }}</h2>
+          <p class="opacity-90">{{ current_lesson.description or "Lesson content and notes will appear here." }}</p>
+          <div class="mt-6">
+            {% if is_complete %}
+              <button
+                class="bg-gray-500 text-white px-5 py-2 rounded-lg font-medium cursor-default shadow-sm"
+                disabled
+              >
+                Lesson Completed! ✓
+              </button>
+              <form action="{{ url_for('courses.unmark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST" class="inline-block ml-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="text-sm text-gray-200 hover:text-red-400 underline">Unmark</button>
+              </form>
             {% else %}
-              Please select a lesson from the sidebar to begin.
+              <form action="{{ url_for('courses.mark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button
+                  type="submit"
+                  class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md"
+                >
+                  Mark as Complete
+                </button>
+              </form>
             {% endif %}
           </div>
-        {% endif %}
-      </div>
-
-      {% if current_lesson %}
-      <div class="mt-6 bg-white p-6 rounded-2xl shadow-md">
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ current_lesson.title }}</h2>
-        <p class="text-gray-600 leading-relaxed">
-          {{ current_lesson.description or "Lesson content and notes will appear here." }}
-        </p>
-
-        <div class="mt-6">
-          {% if is_complete %}
-              <button
-                  class="bg-gray-400 text-white px-5 py-2 rounded-lg font-medium cursor-default"
-                  disabled
-              >
-                  Lesson Completed! (&#10003;)
-              </button>
-
-              <form action="{{ url_for('courses.unmark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST" class="inline-block ml-3">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button type="submit" class="text-sm text-gray-500 hover:text-red-500 underline">Unmark</button>
-              </form>
-          {% else %}
-        <form action="{{ url_for('courses.mark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST">
-           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button
-              type="submit"
-              class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md"
-            >
-              Mark as Complete
-            </button>
-          </form>
-          {% endif %}
-      </div>
-      </div>
-      {% endif %}
-    </div>
-
-    <aside class="w-full lg:w-80 flex-shrink-0">
-      <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-        <div class="p-4 border-b border-gray-100">
-          <h3 class="text-lg font-semibold text-gray-800">Course Lessons</h3>
         </div>
+      {% endif %}
 
-        <ul class="divide-y divide-gray-100 max-h-[75vh] overflow-y-auto">
-          {% for module in modules %}
-            <li class="p-4 bg-gray-50">
-              <h4 class="font-semibold text-gray-700">{{ module.title }}</h4>
-            </li>
+      ---
 
-             {% for l in module.lessons.all() %}
-              {% set video_id = get_embed_url(l.content_url).split('/')[-1].split('?')[0] %}
-              <li
-                class="flex gap-3 p-2 hover:bg-gray-50 transition-all cursor-pointer
-                       {% if current_lesson and l.slug == current_lesson.slug %}
-                         bg-blue-50 border-l-4 border-blue-500
-                       {% else %}
-                         pl-3
-                       {% endif %}"
-              >
-                <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=l.slug) }}"
-                   class="flex items-start w-full gap-3">
-                  
-                  <div class="w-24 h-14 flex-shrink-0 relative overflow-hidden rounded-md bg-gray-200">
-                    {% if video_id %}
-                      {# Using the extracted video_id to get the medium quality YouTube thumbnail #}
-                      <img src="https://img.youtube.com/vi/{{ video_id }}/mqdefault.jpg" 
-                           alt="Thumbnail for {{ l.title }}" 
-                           class="w-full h-full object-cover">
-                    {% else %}
-                      <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm p-1 text-center leading-none">
-                        Video Not Ready
-                      </div>
-                    {% endif %}
+      {# ---- COURSE LESSON LIST (AT THE BOTTOM) ---- #}
+      <aside class="w-full">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl shadow-lg overflow-hidden lg:w-3/4 mx-auto">
+          <div class="p-4 border-b border-white/10 text-white">
+            <h3 class="text-lg font-semibold">Course Lessons</h3>
+          </div>
+          <ul class="divide-y divide-white/10 max-h-[75vh] overflow-y-auto">
+            {% for module in modules %}
+              <li class="p-4 bg-white/5 text-white/90">
+                <h4 class="font-semibold">{{ module.title }}</h4>
+              </li>
+              {% for l in module.lessons.all() %}
+                {% set video_id = get_embed_url(l.content_url).split('/')[-1].split('?')[0] %}
+                <li class="flex gap-3 p-2 hover:bg-white/10 transition cursor-pointer
+                           {% if current_lesson and l.slug == current_lesson.slug %}
+                             bg-blue-500/30 border-l-4 border-blue-300
+                           {% else %}
+                             pl-3
+                           {% endif %}">
+                  <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=l.slug) }}"
+                     class="flex items-start w-full gap-3">
                     
-                    <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                       {% if current_lesson and l.slug == current_lesson.slug %}
+                    <div class="w-24 h-14 flex-shrink-0 relative overflow-hidden rounded-md bg-gray-200">
+                      {% if video_id %}
+                        <img src="https://img.youtube.com/vi/{{ video_id }}/mqdefault.jpg" 
+                             alt="Thumbnail for {{ l.title }}" 
+                             class="w-full h-full object-cover">
+                      {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm p-1 text-center leading-none">
+                          No Video
+                        </div>
+                      {% endif %}
+                      <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        {% if current_lesson and l.slug == current_lesson.slug %}
                           <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
                         {% else %}
                           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         {% endif %}
+                      </div>
                     </div>
-                  </div>
-
-                  <div classC="flex flex-col flex-grow">
-                    <span class="text-gray-900 font-medium hover:text-blue-600 transition text-sm leading-tight line-clamp-2">
-                      {{ l.title }}
-                    </span>
-                    <span class="text-xs text-gray-500 mt-1">{{ l.duration or "—" }}</span>
-                  </div>
-                </a>
-              </li>
+                    <div class="flex flex-col flex-grow">
+                      <span class="font-medium text-sm leading-tight text-white hover:text-blue-300 transition line-clamp-2">
+                        {{ l.title }}
+                      </span>
+                      <span class="text-xs text-gray-300 mt-1">{{ l.duration or "—" }}</span>
+                    </div>
+                  </a>
+                </li>
+              {% endfor %}
+              {% if module.lessons.count() == 0 %}
+                <li class="p-4 text-sm text-gray-400">No lessons in this module yet.</li>
+              {% endif %}
             {% endfor %}
-            
-            {% if module.lessons.count() == 0 %}
-              <li class="p-4 text-sm text-gray-500">No lessons in this module yet.</li>
-            {% endif %}
-
-          {% endfor %}
-        </ul>
-      </div>
-    </aside>
-
+          </ul>
+        </div>
+      </aside>
+    </div>
   </div>
 </section>
 {% endblock %}
