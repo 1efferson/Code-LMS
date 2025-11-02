@@ -1,16 +1,21 @@
-
 # lms/__init__.py
 
 from flask import Flask
 from .extensions import db, login_manager, csrf, bcrypt, migrate
+from flask_mail import Mail
 import logging
 
-# Import blueprints from route files
+# Import blueprints
 from .main import main as main_blueprint
 from .auth import auth as auth_blueprint
 from .courses.routes import courses as courses_blueprint
+from .admin import admin as admin_blueprint
+from lms.commands import promote_admin
 
-# Module-level user loader (lazy-import User to avoid circular imports)
+
+mail = Mail()  # ✅ initialize Flask-Mail globally
+
+
 @login_manager.user_loader
 def load_user(user_id):
     logger = logging.getLogger(__name__)
@@ -18,8 +23,7 @@ def load_user(user_id):
     if not user_id:
         return None
     try:
-        # importing inside function to avoid circular import at module import time
-        from .models.user import User
+        from .models.user import User  # avoid circular import
         return db.session.get(User, int(user_id))
     except Exception:
         logger.exception("Error in module-level load_user")
@@ -29,12 +33,11 @@ def load_user(user_id):
 def create_app(config_object='config.Config'):
     """Application factory for the LMS."""
 
-    
-    # Initialize Flask app
     app = Flask('lms', instance_relative_config=True)
-    
-    # Load configuration
     app.config.from_object(config_object)
+
+    # CLI command
+    app.cli.add_command(promote_admin)
     
     # Initialize extensions
     db.init_app(app)
@@ -42,8 +45,9 @@ def create_app(config_object='config.Config'):
     login_manager.init_app(app)
     csrf.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)  
     
-    # Flask-Login configuration
+    # Flask-Login config
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'warning'
     
@@ -51,8 +55,9 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(courses_blueprint, url_prefix='/courses')
+    app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
-    # Importing models so Alembic sees metadata (side-effect import)
+    # Import models for Alembic
     from . import models 
     
     return app

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="min-h-screen flex items-center justify-center p-4 relative">
    
-    <div class="absolute inset-0 blur-3xl">
+    <div class="absolute inset-0 blur-none">
         <img src="{{ url_for('static', filename='images/login.svg') }}" 
              alt="Background" 
              class="w-full h-full object-cover">
@@ -15,13 +15,12 @@
 
     <!-- 
       Main Card: Side-by-side layout
-      We use 'relative' or 'z-10' to ensure it's on top of the background.
     -->
     <div class="relative w-full max-w-4xl justify-center flex rounded-2xl overflow-hidden">
         
     
         <!--Right Side: Glassmorphic Register Form -->
-        <div class="w-full md:w-1/2 p-8 bg-white/50 backdrop-blur-lg border border-white/30">
+        <div class="w-full md:w-1/2 p-8 bg-white/50 backdrop-blur-sm border border-white/30 rounded-lg">
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Create an Account</h2>
 
             <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-4">
