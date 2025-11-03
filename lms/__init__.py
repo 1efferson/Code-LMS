@@ -59,5 +59,132 @@ def create_app(config_object='config.Config'):
 
     # Import models for Alembic
     from . import models 
+
+    # ---- CLI: seed demo data ----
+    @app.cli.command('seed-demo')
+    def seed_demo():
+        """Populate the database with demo courses, a demo student, and enrollments."""
+        from .models.user import User
+        from .models.course import Course
+        from .models.enrollment import Enrollment
+        from .extensions import db, bcrypt
+
+        # Create a demo instructor
+        instructor = User.query.filter_by(email='instructor@example.com').first()
+        if not instructor:
+            instructor = User(name='Instructor One', email='instructor@example.com',
+                              password=bcrypt.generate_password_hash('password123').decode('utf-8'),
+                              role='instructor')
+            db.session.add(instructor)
+
+        # Create a demo student
+        student = User.query.filter_by(email='student@example.com').first()
+        if not student:
+            student = User(name='Demo Student', email='student@example.com',
+                           password=bcrypt.generate_password_hash('password123').decode('utf-8'),
+                           role='student')
+            db.session.add(student)
+        
+        # Demo courses (published)
+        demo_courses = [
+            {
+                'title': 'Python Fundamentals',
+                'description': 'Learn the basics of Python programming, including syntax, data types, and control flow.',
+                'level': 'Beginner',
+                'category': 'Programming'
+            },
+            {
+                'title': 'Introduction to JavaScript',
+                'description': 'Learn the basics of JavaScript programming, including syntax, data types, and control flow.',
+                'level': 'Beginner',
+                'category': 'Programming'
+            },
+            {
+                'title': 'Web Development with Flask',
+                'description': 'Build dynamic web applications using Flask, Jinja2, and SQLAlchemy.',
+                'level': 'Intermediate',
+                'category': 'Web Development'
+            },
+            {
+                'title': 'Data Analysis with Pandas',
+                'description': 'Use Pandas to clean, analyze, and visualize data effectively.',
+                'level': 'Intermediate',
+                'category': 'Data Science'
+            },
+            {
+                'title': 'Algorithms and Data Structures',
+                'description': 'Master the fundamental data structures and algorithms used in technical interviews.',
+                'level': 'Advanced',
+                'category': 'Computer Science'
+            }
+        ]
+
+        created_courses = []
+        for c in demo_courses:
+            existing = Course.query.filter_by(title=c['title']).first()
+            if existing:
+                course = existing
+            else:
+                course = Course(
+                    title=c['title'],
+                    description=c['description'],
+                    level=c.get('level'),
+                    category=c.get('category'),
+                    instructor_id=instructor.id if instructor else None,
+                    published=True
+                )
+                db.session.add(course)
+            created_courses.append(course)
+
+        db.session.commit()  # ensure IDs for users and courses
+
+        # Ensure the demo student is enrolled in exactly ONE Beginner course
+        # 1) Find a Beginner-level course (create one above if not exists)
+        beginner_course = next((c for c in created_courses if (c.level or '').lower() == 'beginner'), None)
+
+        if beginner_course:
+            # 2) Remove any existing enrollments for the student that are NOT the Beginner course
+            existing_others = Enrollment.query.filter(
+                Enrollment.user_id == student.id,
+                Enrollment.course_id != beginner_course.id
+            ).all()
+            for e in existing_others:
+                db.session.delete(e)
+
+            # 3) Ensure enrollment exists for the Beginner course only
+            existing_beginner = Enrollment.query.filter_by(user_id=student.id, course_id=beginner_course.id).first()
+            if not existing_beginner:
+                db.session.add(Enrollment(user_id=student.id, course_id=beginner_course.id))
+
+        db.session.commit()
+        print('Seed complete. Login as student@example.com / password123 to view enrollments on dashboard.')
+    
+    # ---- CLI: clear all data (keep tables) ----
+    @app.cli.command('clear-data')
+    def clear_data():
+        """Delete all rows from all tables while preserving the schema."""
+        from .extensions import db
+        from sqlalchemy import text
+
+        engine = db.engine
+        with engine.connect() as connection:
+            trans = connection.begin()
+            try:
+                # Temporarily disable FK constraints for SQLite to avoid delete order issues
+                if engine.dialect.name == 'sqlite':
+                    connection.execute(text('PRAGMA foreign_keys = OFF'))
+
+                # Delete from all tables in reverse dependency order
+                for table in reversed(db.metadata.sorted_tables):
+                    connection.execute(table.delete())
+
+                trans.commit()
+            except Exception:
+                trans.rollback()
+                raise
+            finally:
+                if engine.dialect.name == 'sqlite':
+                    connection.execute(text('PRAGMA foreign_keys = ON'))
+        print('All data cleared. Tables remain intact.')
     
     return app
