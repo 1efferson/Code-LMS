@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex min-h-[calc(100vh-64px)] bg-gray-50">
+    
+    <!-- Sidebar (Visible only to Admin) -->
+    <aside class="w-64 bg-gray-800 text-white shadow-xl flex-shrink-0">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            LMS Admin
+        </div>
+        
+        <nav class="mt-6 space-y-2 px-4">
+            <!-- Dashboard Home Link -->
+            {% set course_management_routes = ['admin.manage_courses', 'admin.manage_course_outline', 'admin.edit_course', 'admin.edit_module', 'admin.edit_lesson'] %}
+            
+            <a href="{{ url_for('admin.manage_courses') }}" 
+               class="flex items-center p-3 rounded-lg text-lg font-medium transition duration-150 hover:bg-gray-700 
+               {% if request.endpoint in course_management_routes or request.endpoint == 'admin.admin_index' %}bg-blue-600 text-white shadow-md{% else %}text-gray-300{% endif %}">
+               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-2 2h-2m2 0h-2"></path></svg>
+               Manage Courses
+            </a>
+            
+            <!-- Add Course Link -->
+            <a href="{{ url_for('admin.add_course') }}" 
+               class="flex items-center p-3 rounded-lg text-lg font-medium transition duration-150 hover:bg-gray-700 
+               {% if request.endpoint == 'admin.add_course' %}bg-blue-600 text-white shadow-md{% else %}text-gray-300{% endif %}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               Add New Course
+            </a>
+            
+            <!-- Placeholder for Settings/Users (Future Feature) -->
+            <div class="text-sm pt-4 text-gray-500 uppercase border-t border-gray-700 mx-3">Other Tools</div>
+            <a href="#" class="flex items-center p-3 rounded-lg text-lg font-medium text-gray-400 transition duration-150 hover:bg-gray-700">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.245.548 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Settings (Coming Soon)
+            </a>
+        </nav>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="flex-grow p-8">
+        <div class="w-full">
+            {% block admin_content %}
+                <!-- Child templates will populate this block -->
+            {% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}

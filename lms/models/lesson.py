@@ -23,7 +23,7 @@ class Lesson(db.Model):
     # Content fields
     content_url = db.Column(db.String(500), nullable=True)  # For YouTube/Vimeo embed
     description = db.Column(db.Text, nullable=True)
-    duration = db.Column(db.String(20), nullable=True) # e.g., "10:30"
+    duration = db.Column(db.String(20), nullable=True) # e.g., "10:30
     
     # Foreign Key to Module
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)

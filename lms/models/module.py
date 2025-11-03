@@ -23,7 +23,7 @@ class Module(db.Model):
     lessons = db.relationship(
     'Lesson',
     backref='module',
-    lazy=True,
+    lazy='dynamic',
     cascade='all, delete-orphan',
     order_by='Lesson.order'
 )

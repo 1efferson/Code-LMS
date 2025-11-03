@@ -1,116 +1,353 @@
-{% extends "base.html" %}
-{% block title %}Home | Code-LMS{% endblock %}
+{% extends "base.html" %} 
+
+{% block title %}Home | Code-LMS{% endblock %} 
 
 {% block content %}
-<!-- 1. HERO SECTION: Dynamic and Engaging -->
-<section class="bg-gray-50 pt-20 pb-32">
-  <div class="container mx-auto px-6 lg:px-12">
-    <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden" style="margin-top: -2rem">
+  <!-- Background Image -->
+  <div class="absolute inset-0 z-0">
+    <img
+      src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+      alt="Coding Background"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-blue-900 opacity-60 mix-blend-multiply"></div>
+  </div>
 
-      <!-- Text Content and Primary CTA -->
-      <div class="lg:w-1/2 text-center lg:text-left">
-        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-          Master the <span class="text-blue-600">Full Stack</span>. Build Real-World Software.
+  <!-- Floating Glow Effects -->
+  <div class="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-overlay filter blur-xl opacity-20 animate-pulse"></div>
+  <div class="absolute top-40 right-10 w-72 h-72 bg-indigo-400 rounded-full mix-blend-overlay filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+  <div class="absolute bottom-20 left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-overlay filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+
+  <!-- Content Container -->
+  <div class="container mx-auto px-6 lg:px-12 relative z-10 w-full">
+    <div class="flex flex-col-reverse lg:flex-row items-center justify-between gap-12">
+      
+      <!-- Left: Text Section -->
+      <div class="lg:w-1/2 text-center lg:text-left flex flex-col items-center lg:items-start">
+        <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+          Master the 
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300">
+            Full Stack
+          </span>
+          . Build Real-World Software.
         </h1>
-        <p class="text-xl text-gray-600 mb-10 max-w-xl mx-auto lg:mx-0">
-          Start with CS fundamentals and advance to full web development with Flask, Python, and JavaScript. Our 3-level path guides your mastery.
+
+        <p class="text-xl text-blue-100 mb-8 max-w-xl mx-auto lg:mx-0">
+          Start with CS fundamentals and advance to full web development with Flask, Python, and JavaScript. 
+          Our 3-level path guides your mastery.
         </p>
 
-        <!-- Primary CTA to Course Catalog -->
-        <div class="flex justify-center lg:justify-start space-x-4">
-          <a href="{{ url_for('courses.index') }}"
-             class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:bg-blue-700 transition duration-300 transform hover:scale-105">
-             Explore Courses
+        <!-- Buttons -->
+        <div class="flex flex-wrap justify-center lg:justify-start gap-4">
+          <a 
+            href="{{ url_for('courses.index') }}"
+            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 transition-all duration-300"
+          >
+            Explore Courses
           </a>
-          <a href="{{ url_for('auth.register') }}"
-             class="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg border-2 border-blue-600 hover:bg-blue-50 transition duration-300">
-             Sign Up
+          <a 
+            href="{{ url_for('auth.register') }}"
+            class="px-6 py-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-md hover:bg-blue-600 hover:text-white transition-all duration-300"
+          >
+            Sign Up
           </a>
         </div>
+
+        <!-- Typed.js Tagline -->
+        <div class="mt-10 text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200">
+          <span id="typed-text"></span>
+        </div>
       </div>
-      <div class="lg:w-1/2 mt-10 lg:mt-0 flex items-center justify-center">
-+        <img src="{{ url_for('static', filename='images/home.svg') }}"
-+             alt="Illustration showing students learning"
-+             class="w-full max-w-md lg:max-w-lg h-auto"
-+             loading="lazy">
-+      </div>
+
+      <!-- Right: Card or Illustration -->
+      <div class="lg:w-1/2 flex justify-center lg:justify-end">
+        <div class="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl max-w-md text-white border border-white/20">
+          <h3 class="text-2xl font-bold text-center text-white mb-4">
+            Structured Learning Path
+          </h3>
+          <p class="text-blue-100 text-center mb-6">
+            From beginner to full-stack developer with our carefully crafted curriculum
+          </p>
+          <div class="flex justify-center">
+            <div class="w-full bg-white bg-opacity-20 rounded-full h-2.5">
+              <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-2.5 rounded-full w-3/4 shadow-md"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 2. COURSE LEVEL OVERVIEW SECTION: Highlight the Structure -->
-<section class="py-24 bg-white">
-  <div class="container mx-auto px-6 lg:px-12 text-center">
-    <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Your Structured Learning Journey</h2>
-    <p class="text-xl text-gray-600 mb-16">
+<!-- 2. COURSE LEVEL OVERVIEW SECTION -->
+<section class="py-24 relative overflow-hidden">
+  <!-- Background Image with Overlay -->
+  <div class="absolute inset-0 z-0">
+    <img
+      src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+      alt="Abstract Tech Background"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-white opacity-85"></div>
+  </div>
+
+  <div class="container mx-auto px-6 lg:px-12 relative z-10 text-center">
+    <h2 class="text-4xl font-extrabold text-gray-900 mb-4">
+      Your Structured Learning Journey
+    </h2>
+    <p class="text-xl text-gray-700 mb-16">
       Our curriculum is carefully sequenced to take you from zero to expert developer.
     </p>
 
     <div class="grid md:grid-cols-3 gap-10">
       <!-- Level 1: Beginner -->
-      <div class="p-8 border-t-4 border-blue-500 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 bg-gray-50">
-        <div class="text-4xl text-blue-500 mb-4">1</div>
-        <h3 class="text-2xl font-bold mb-3 text-gray-800">Beginner: Foundations</h3>
-        <p class="text-gray-600 mb-4">
-          Start with **Computer Science Principles** and **Python Turtle**. Establish the core logical and programming concepts.
+      <div class="glass-card-enhanced p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-4xl text-blue-500 mb-4 font-bold drop-shadow-sm">
+          1
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-gray-800">
+          Beginner: Foundations
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Start with <strong>Computer Science Principles</strong> and
+          <strong>Python Turtle</strong>. Establish the core logical and programming concepts.
         </p>
-        <span class="inline-block text-sm font-semibold text-blue-600 border-b-2 border-blue-600">CS Principles, Python Turtle</span>
+        <span class="inline-block text-sm font-semibold text-blue-600 py-1 px-3 rounded-full bg-blue-100 bg-opacity-70 backdrop-blur-sm">
+          CS Principles, Python Turtle
+        </span>
       </div>
 
       <!-- Level 2: Intermediate -->
-      <div class="p-8 border-t-4 border-indigo-500 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 bg-gray-50">
-        <div class="text-4xl text-indigo-500 mb-4">2</div>
-        <h3 class="text-2xl font-bold mb-3 text-gray-800">Intermediate: Application</h3>
-        <p class="text-gray-600 mb-4">
-          Master **Git Version Control**, practical Python structures, and GUI development with **Tkinter**. Ready for collaboration.
+      <div class="glass-card-enhanced p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-4xl text-indigo-500 mb-4 font-bold drop-shadow-sm">
+          2
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-gray-800">
+          Intermediate: Application
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Master <strong>Git Version Control</strong>, practical Python structures, and GUI development with <strong>Tkinter</strong>. Ready for collaboration.
         </p>
-        <span class="inline-block text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600">Intro Python, Git, Tkinter</span>
+        <span class="inline-block text-sm font-semibold text-indigo-600 py-1 px-3 rounded-full bg-indigo-100 bg-opacity-70 backdrop-blur-sm">
+          Intro Python, Git, Tkinter
+        </span>
       </div>
 
       <!-- Level 3: Advanced -->
-      <div class="p-8 border-t-4 border-purple-500 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 bg-gray-50">
-        <div class="text-4xl text-purple-500 mb-4">3</div>
-        <h3 class="text-2xl font-bold mb-3 text-gray-800">Advanced: Full-Stack</h3>
-        <p class="text-gray-600 mb-4">
-          Dive into **HTML, CSS, JavaScript**, **Flask** backend, and **SQL** databases to build and deploy complete web apps.
+      <div class="glass-card-enhanced p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-4xl text-purple-500 mb-4 font-bold drop-shadow-sm">
+          3
+        </div>
+        <h3 class="text-2xl font-bold mb-3 text-gray-800">
+          Advanced: Full-Stack
+        </h3>
+        <p class="text-gray-700 mb-4">
+          Dive into <strong>HTML, CSS, JavaScript</strong>, <strong>Flask</strong> backend, and <strong>SQL</strong> databases to build and deploy complete web apps.
         </p>
-        <span class="inline-block text-sm font-semibold text-purple-600 border-b-2 border-purple-600">Flask, SQL, Web Dev</span>
+        <span class="inline-block text-sm font-semibold text-purple-600 py-1 px-3 rounded-full bg-purple-100 bg-opacity-70 backdrop-blur-sm">
+          Flask, SQL, Web Dev
+        </span>
       </div>
     </div>
   </div>
 </section>
 
+<!-- 3. PLATFORM FEATURES -->
+<section class="py-24 relative overflow-hidden">
+  <!-- Background Image with Overlay -->
+  <div class="absolute inset-0 z-0">
+    <img
+      src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80"
+      alt="Network Connections Background"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-90"></div>
+  </div>
 
-<!-- 3. PLATFORM FEATURES (Refined Original Section) -->
-<section class="py-24 bg-gray-50">
-  <div class="container mx-auto px-6 lg:px-12">
-    <h2 class="text-4xl font-extrabold text-center text-gray-900 mb-16">Why Choose Code-LMS?</h2>
+  <!-- Background elements -->
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-300 rounded-full mix-blend-overlay filter blur-xl opacity-30"></div>
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-300 rounded-full mix-blend-overlay filter blur-xl opacity-30"></div>
+
+  <div class="container mx-auto px-6 lg:px-12 relative z-10">
+    <h2 class="text-4xl font-extrabold text-center text-gray-900 mb-16">
+      Why Choose Code-LMS?
+    </h2>
     <div class="grid md:grid-cols-3 gap-8">
-      
-      <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-600">
-        <div class="text-blue-600 text-3xl mb-4">&#9999;</div> <!-- Pen Icon -->
-        <h3 class="text-xl font-bold mb-2 text-gray-800">Seamless User Management</h3>
-        <p class="text-gray-600">
-          Secure registration, login, and session management using industry best practices like Flask-Login and Flask-Bcrypt.
+      <div class="glass-card-enhanced rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-blue-600 text-4xl mb-4 flex justify-center">
+          <div class="glass-icon-enhanced p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-800 text-center">
+          Seamless User Management
+        </h3>
+        <p class="text-gray-700 text-center">
+          Secure registration, login, and session management using Flask-Login and Flask-Bcrypt.
         </p>
       </div>
-      
-      <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-indigo-600">
-        <div class="text-indigo-600 text-3xl mb-4">&#128200;</div> <!-- Chart Icon -->
-        <h3 class="text-xl font-bold mb-2 text-gray-800">Interactive Dashboard</h3>
-        <p class="text-gray-600">
-          A dedicated student hub to view your course progress, track quiz scores, and manage your learning journey efficiently.
+
+      <div class="glass-card-enhanced rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-indigo-600 text-4xl mb-4 flex justify-center">
+          <div class="glass-icon-enhanced p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-800 text-center">
+          Interactive Dashboard
+        </h3>
+        <p class="text-gray-700 text-center">
+          A dedicated student hub to view course progress, track quiz scores, and manage your learning efficiently.
         </p>
       </div>
-      
-      <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-purple-600">
-        <div class="text-purple-600 text-3xl mb-4">&#9881;</div> <!-- Gear Icon -->
-        <h3 class="text-xl font-bold mb-2 text-gray-800">Clean Architecture</h3>
-        <p class="text-gray-600">
-          Built with scalable Flask blueprints and a clean Model-View-Controller (MVC) structure for easy maintenance and future growth.
+
+      <div class="glass-card-enhanced rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-white border-opacity-40">
+        <div class="text-purple-600 text-4xl mb-4 flex justify-center">
+          <div class="glass-icon-enhanced p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-800 text-center">
+          Clean Architecture
+        </h3>
+        <p class="text-gray-700 text-center">
+          Built with scalable Flask blueprints and an MVC structure for easy maintenance and growth.
         </p>
       </div>
     </div>
   </div>
 </section>
+
+<!-- 4. TESTIMONIAL SECTION -->
+<section class="py-24 relative overflow-hidden">
+  <!-- Background Image with Overlay -->
+  <div class="absolute inset-0 z-0">
+    <img
+      src="{{ url_for('static', filename='images/login-bg.jpg') }}"
+      alt="Collaboration Background"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-80"></div>
+  </div>
+
+  <!-- Background elements -->
+  <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full mix-blend-overlay filter blur-xl opacity-20 transform translate-x-32 -translate-y-32"></div>
+  <div class="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full mix-blend-overlay filter blur-xl opacity-20 transform -translate-x-32 translate-y-32"></div>
+
+  <div class="container mx-auto px-6 lg:px-12 relative z-10">
+    <h2 class="text-4xl font-extrabold text-center text-white mb-4">
+      What Our Students Say
+    </h2>
+    <p class="text-xl text-blue-100 text-center mb-16 max-w-2xl mx-auto">
+      Join thousands of students who have transformed their careers with our structured learning approach.
+    </p>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Testimonial 1 -->
+      <div class="glass-card-enhanced p-6 rounded-2xl shadow-lg border border-white border-opacity-30">
+        <div class="flex items-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            A
+          </div>
+          <div class="ml-4">
+            <h4 class="font-bold text-white">Raphael Okai</h4>
+            <p class="text-sm text-blue-200">Full-Stack Developer</p>
+          </div>
+        </div>
+        <p class="text-blue-100 italic">
+          "The structured path from beginner to advanced was exactly what I needed. I went from zero coding experience to landing my first developer job in 9 months!"
+        </p>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="glass-card-enhanced p-6 rounded-2xl shadow-lg border border-white border-opacity-30">
+        <div class="flex items-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            S
+          </div>
+          <div class="ml-4">
+            <h4 class="font-bold text-white">Jude Tetteh-Fio</h4>
+            <p class="text-sm text-blue-200">Backend Engineer</p>
+          </div>
+        </div>
+        <p class="text-blue-100 italic">
+          "The Flask projects were challenging but so rewarding. The hands-on approach helped me understand concepts that I struggled with in other courses."
+        </p>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="glass-card-enhanced p-6 rounded-2xl shadow-lg border border-white border-opacity-30">
+        <div class="flex items-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            M
+          </div>
+          <div class="ml-4">
+            <h4 class="font-bold text-white">Jefferson Ampadu</h4>
+            <p class="text-sm text-blue-200">Frontend Developer</p>
+          </div>
+        </div>
+        <p class="text-blue-100 italic">
+          "I appreciated how each level was built on the previous one. The progression felt natural, and I never felt overwhelmed. The dashboard kept me motivated!"
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. CTA SECTION -->
+<section class="py-20 relative overflow-hidden">
+  <!-- Background Image with Gradient Overlay -->
+  <div class="absolute inset-0 z-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"></div>
+  </div>
+
+  <!-- Background elements -->
+  <div class="absolute top-0 left-0 w-full h-full opacity-20">
+    <div class="absolute top-10 left-10 w-64 h-64 bg-white rounded-full mix-blend-overlay"></div>
+    <div class="absolute bottom-10 right-10 w-64 h-64 bg-white rounded-full mix-blend-overlay"></div>
+  </div>
+
+  <div class="container mx-auto px-6 lg:px-12 text-center relative z-10">
+    <h2 class="text-4xl font-extrabold text-white mb-6">
+      Ready to Start Your Coding Journey?
+    </h2>
+    <p class="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+      Join thousands of students who have transformed their careers with our structured learning approach.
+    </p>
+    <a
+      href="{{ url_for('auth.register') }}"
+      class="normal-btn-primary px-10 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 inline-block"
+    >
+      Get Started Today
+    </a>
+  </div>
+</section>
+{% endblock %} 
+
+{% block scripts %}
+<!-- Typed.js integration -->
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    new Typed("#typed-text", {
+      strings: [
+        "Code Camp. Where Ideas Come Alive.",
+        "Inspiring Self-Learning Every Day.",
+        "Shaping Vibrant, Industry-Ready Engineers.",
+      ],
+      typeSpeed: 40,
+      backSpeed: 20,
+      backDelay: 2000,
+      loop: true,
+    });
+  });
+</script>
 {% endblock %}

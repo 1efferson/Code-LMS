@@ -33,8 +33,6 @@ class Course(db.Model):
 
     instructor = db.relationship('User', backref='courses_taught', foreign_keys=[instructor_id])
     
-    # Updated relationship (uses back_populates)
-    enrollments = db.relationship('Enrollment', back_populates='course', lazy='dynamic', cascade='all, delete-orphan')
 
     modules = db.relationship('Module', backref='course', lazy='dynamic', cascade='all, delete-orphan')
 
