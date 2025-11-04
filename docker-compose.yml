@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: code_lms
+    ports:
+      - "8000:5000"
+    env_file:
+      - .env
+      - .flaskenv
+    volumes:
+      - .:/app
+      - ./instance:/app/instance  # persist SQLite db
+    restart: always

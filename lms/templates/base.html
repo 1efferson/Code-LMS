@@ -45,25 +45,25 @@
             <!-- Desktop Navigation Menu -->
             <nav class="hidden md:flex md:space-x-8 items-center">
                 <ul class="flex space-x-6 items-center">
-                    
-                    <!-- Always visible 'Home' link -->
-                    <li>
-                        <a href="{{ url_for('main.home') }}" 
-                           class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                            Home
-                        </a>
-                    </li>
+                    <!-- Show Home link only if NOT logged in -->
+                    {% if not current_user.is_authenticated %}
+                        <li>
+                            <a href="{{ url_for('main.home') }}" 
+                            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                                Home
+                            </a>
+                        </li>
+                    {% endif %}
                     
                     <!-- Show these links only if user is logged in -->
                     {% if current_user.is_authenticated %}
                         <li>
                             <a href="{{ url_for('courses.index') }}" 
-                               class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
                                 Courses
                             </a>
                         </li>
 
-                        <!-- Profile avatar with user initials -->
                         <li class="relative ml-4 pl-4 border-l border-gray-700">
                             <a href="{{ url_for('main.profile') }}" class="flex items-center space-x-2 group">
                                 <span class="sr-only">View Profile</span>
@@ -73,32 +73,31 @@
                             </a>
                         </li>
 
-                        <!-- Admin Dashboard link (only visible to admin users) -->
                         {% if current_user.is_admin %}
                             <li>
                                 <a href="{{ url_for('admin.admin_index') }}" 
-                                   class="text-sm font-bold text-yellow-400 hover:text-yellow-300 border border-yellow-400 hover:border-yellow-300 px-3 py-1.5 rounded-full transition duration-150">
+                                class="text-sm font-bold text-yellow-400 hover:text-yellow-300 border border-yellow-400 hover:border-yellow-300 px-3 py-1.5 rounded-full transition duration-150">
                                     Admin Dashboard
                                 </a>
                             </li>
                         {% endif %}
-
                     {% else %}
                         <!-- If user is NOT logged in -->
                         <li>
                             <a href="{{ url_for('auth.login') }}" 
-                               class="text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150">
+                            class="text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150">
                                 Login
                             </a>
                         </li>
                         <li>
                             <a href="{{ url_for('auth.register') }}" 
-                               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg transition duration-150 ease-in-out">
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg transition duration-150 ease-in-out">
                                 Get Started
                             </a>
                         </li>
                     {% endif %}
                 </ul>
+
             </nav>
 
             <!-- Mobile menu button (hamburger icon) -->
