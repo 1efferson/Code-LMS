@@ -84,6 +84,41 @@ Create a .env and flaskenv file respectively in the root directory and add:
 
  ```
 
+### 7. Seed Demo Data (Courses + Enrollments)
+To quickly visualize the dashboard with enrolled courses, seed the database with demo data:
+
+```bash
+# Run database migrations first if not already
+flask db upgrade
+
+# Run the seed command (explicitly specifying the app entrypoint)
+flask --app app.py seed-demo
+```
+
+This will create:
+- A demo instructor (instructor@example.com / password123)
+- A demo student (student@example.com / password123)
+- 3–4 published demo courses
+- Enroll the demo student into exactly 1 Beginner course
+
+Log in as student@example.com to see the single enrolled Beginner course on the Dashboard.
+
+### 8. Clear All Data (Keep Tables)
+If you want to remove all rows from the database but keep the schema/migrations intact:
+
+```bash
+flask --app app.py clear-data
+```
+
+Notes:
+- This deletes data from all tables in reverse dependency order and temporarily disables SQLite foreign key checks to avoid constraint violations.
+- Tables, schema, and migrations remain intact.
+- After clearing, you can re-run the seed:
+
+```bash
+flask --app app.py seed-demo
+```
+
 ## 🧩 Architecture & Blueprints
 
 The system is modular, using Flask Blueprints for clear separation of features.

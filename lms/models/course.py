@@ -28,8 +28,8 @@ class Course(db.Model):
 
     instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     instructor = db.relationship('User', backref='courses_taught', foreign_keys=[instructor_id])
     
