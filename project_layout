@@ -1,58 +1,96 @@
-
-
-
-        Code-lms/
-        │
-        ├── app.py
-        ├── config.py
-        ├── package.json
-        ├── package-lock.json
-        ├── project_layout
-        ├── README.md
-        ├── tailwind.config.js
-        |
-        ├── instance/
-        |   └── lms.db
-        │
-        ├── lms/
-        │   ├── __init__.py
-        |   ├── extensions.py
-        │   │
-        |   |
-        |   |── models/
-        |   |   ├── __init__.py
-        |   |   ├── user.py
-        |   |
-        |   |
-        │   ├── static/
-        │   │   ├── css/
-        |   |   |   ├── dashboard.css
-        │   │   │   ├── input.css
-        │   │   │   └── output.css
-        │   │   ├── js/
-        |   |   |   └──dashboard.js
-        |   |   |
-        │   │   └── images/
-        │   │
-        │   ├── templates/
-        │   │   ├── base.html
-        │   │   ├── home.html
-        │   │   └── dashboard.html
-        │   │
-        │   ├── auth/
-        |   │   ├── __init__.py
-        |   │   ├── routes.py
-        |   │   ├── forms.py
-        |   │   └── templates/
-        |   │       └── auth/
-        |   │           ├── login.html
-        |   │           └── register.html
-        │   |
-        │   │
-        │   ├── main/
-        │      ├── __init__.py
-        │      └── routes.py
-        │   
-        │   
-        │
-        └── venv/
+Code-LMS/
+│
+├── app.py
+├── config.py
+├── .env
+├── .flaskenv
+├── .gitignore
+├── README.md
+├── Requirements.txt
+├── package.json
+├── package-lock.json
+├── tailwind.config.js
+├── project_layout
+│
+├── instance/
+│   └── lms.db
+│
+├── migrations/
+│
+├── lms/
+│   ├── __init__.py
+│   ├── extensions.py
+│   ├── commands.py
+│   ├── utils.py
+│   │
+│   ├── models/
+│   │   ├── course.py
+│   │   ├── user.py
+│   │   ├── enrollment.py
+│   │   ├── lesson_completion.py
+│   │   ├── lesson.py
+│   │   └── module.py
+│   │
+│   ├── static/
+│   │   ├── css/
+│   │   │   ├── dashboard.css
+│   │   │   ├── input.css
+│   │   │   └── output.css
+│   │   ├── js/
+│   │   │   └── dashboard.js
+│   │   └── images/
+│   │
+│   ├── auth/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── forms.py
+│   │   └── templates/
+│   │       └── auth/
+│   │           ├── login.html
+│   │           ├── reset_password.html
+│   │           ├── forgot_password.html
+│   │           └── register.html
+│   │
+│   ├── admin/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── forms.py
+│   │   └── templates/
+│   │       └── admin/
+│   │           ├── admin_base.html
+│   │           ├── add_course.html
+│   │           ├── edit_course.html
+│   │           ├── edit_lesson.html
+│   │           ├── edit_module.html
+│   │           ├── manage_courses.html
+│   │           └── admin_course_outline.html
+│   │
+│   ├── courses/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── static/
+│   │   │   └── css/
+│   │   │       └── course_catalog.css
+│   │   └── templates/
+│   │       └── courses/
+│   │           ├── course_details.html
+│   │           ├── course_lesson.html
+│   │           └── course_catalog.html
+│   │
+│   ├── main/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── static/
+│   │   │   └── css/
+│   │   │       ├── loader.css
+│   │   │       └── dashboard.css
+│   │   └── templates/
+│   │       └── main/
+│   │           ├── home.html
+│   │           ├── dashboard.html
+│   │           └── profile.html
+│   │
+│   └── templates/
+│       └── base.html
+│
+└── venv/

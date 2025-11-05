@@ -5,6 +5,8 @@ from lms import db
 
 from lms.models.enrollment import Enrollment
 from lms.models.lesson_completion import LessonCompletion
+from lms.models.course import Course
+from lms.models.lesson import Lesson
 from . import main
 
 
@@ -50,8 +52,77 @@ def index():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    """Displays user activity and enrolled courses."""
-    return render_template('main/dashboard.html')
+    """Displays the student's enrolled courses and progress."""
+
+    # --- Enrollments ---
+    enrollments = (
+        Enrollment.query
+        .filter_by(user_id=current_user.id)
+        .join(Course)
+        .order_by(Enrollment.date_enrolled.desc())
+        .all()
+    )
+
+    # --- Course Data with Progress ---
+    courses_data = []
+    for e in enrollments:
+        course = e.course
+        total_lessons = sum(module.lessons.count() for module in course.modules)
+
+        completed_lessons = (
+            LessonCompletion.query
+            .join(Lesson)
+            .filter(
+                LessonCompletion.user_id == current_user.id,
+                Lesson.module_id.in_([m.id for m in course.modules])
+            )
+            .count()
+        )
+
+        progress = int((completed_lessons / total_lessons) * 100) if total_lessons > 0 else 0
+
+        courses_data.append({
+            "title": course.title,
+            "slug": course.slug,
+            "description": course.description[:120] + "..." if course.description else "No description available.",
+            "progress": progress,
+            "completed": e.completed,
+            "date_enrolled": time_ago_in_words(e.date_enrolled),
+            "url": url_for("courses.course_detail", slug=course.slug)
+        })
+
+    # --- Dashboard Metrics ---
+    courses_count = current_user.user_enrollments.count()  # total enrolled
+    courses_completed = current_user.user_enrollments.filter_by(completed=True).count()  # finished
+    active_courses = current_user.user_enrollments.filter_by(completed=False).count()  # in progress
+
+    overall_progress = (
+        int(sum(c["progress"] for c in courses_data) / len(courses_data))
+        if courses_data else 0
+    )
+
+    # --- Example placeholders for events and news ---
+    events = [
+        {"title": "Group Study Session", "date": "Nov 5, 2025"},
+        {"title": "New Course Release", "date": "Nov 10, 2025"},
+    ]
+
+    news = [
+        {"title": "System Update Completed", "summary": "The LMS platform has been updated with performance improvements."},
+        {"title": "New Quiz Features", "summary": "You can now track quiz attempts and scores in your dashboard."}
+    ]
+
+    return render_template(
+        "main/dashboard.html",
+        user=current_user,
+        courses=courses_data,
+        courses_count=courses_count,
+        courses_completed=courses_completed,
+        active_courses=active_courses,
+        overall_progress=overall_progress,
+        events=events,
+        news=news
+    )
 
 
 @main.route('/profile', methods=['GET', 'POST'])
@@ -88,6 +159,7 @@ def profile():
     courses_count = current_user.user_enrollments.count()
     lessons_watched_count = current_user.lesson_completions.count()
     courses_completed = current_user.user_enrollments.filter_by(completed=True).count()
+    active_courses = current_user.user_enrollments.filter_by(completed=False).count()
 
     # --- 4. TEMPLATE RENDER ---
     return render_template(
@@ -95,6 +167,7 @@ def profile():
         user=current_user,
         courses_count=courses_count,
         courses_completed=courses_completed,
+        active_courses=active_courses,
         lessons_watched_count=lessons_watched_count,
         last_active=last_active_string
     )
@@ -105,14 +178,8 @@ def profile():
 def update_avatar():
     """Handles avatar updates using service-based avatars."""
     if 'avatar_file' in request.files and request.files['avatar_file'].filename != '':
-        flash(
-            'Profile picture update acknowledged!',
-            'info'
-        )
+        flash('Profile picture update acknowledged!', 'info')
     else:
-        flash(
-            'Avatar settings confirmed.',
-            'info'
-        )
+        flash('Avatar settings confirmed.', 'info')
 
     return redirect(url_for('main.profile'))

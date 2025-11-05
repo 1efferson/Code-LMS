@@ -1,94 +1,175 @@
 {% extends "base.html" %}
-
-{% block title %}Dashboard{% endblock %}
-
-{% block head_css %}
-<link rel="stylesheet" href="{{ url_for('main.static', filename='css/dashboard.css') }}">
-{% endblock %}
+{% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <div class="welcome-message">
-            <h1>Welcome, {{ user.name if user else 'Student' }}</h1>
-            <p class="subtext">Here’s a quick look at your learning progress today.</p>
-        </div>
-        <div class="user-actions">
-            <a href="{{ url_for('main.profile') }}" class="btn-primary">View Profile</a>
+<div class="dashboard-container px-4 sm:px-6 lg:px-8 py-10 bg-gray-50 min-h-screen">
+
+  <h1 class="text-4xl font-extrabold text-gray-800 mb-8 flex items-center">
+    <i class="fas fa-tachometer-alt text-blue-600 mr-3"></i>
+    Welcome, {{ user.name }}
+  </h1>
+
+  <hr class="mb-8 border-gray-200">
+
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <!-- Card 1 -->
+    <div class="bg-white shadow-lg border-l-4 border-blue-500 rounded-xl p-6 flex items-center justify-between transition hover:shadow-xl">
+      <div>
+        <h3 class="text-sm font-bold uppercase text-gray-500 mb-1">Courses Enrolled</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ courses_count }}</p>
+      </div>
+      <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+        <i class="fas fa-book fa-2x"></i>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white shadow-lg border-l-4 border-green-500 rounded-xl p-6 flex items-center justify-between transition hover:shadow-xl">
+      <div>
+        <h3 class="text-sm font-bold uppercase text-gray-500 mb-1">Courses Completed</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ courses_completed }}</p>
+      </div>
+      <div class="bg-green-100 text-green-600 p-3 rounded-full">
+        <i class="fas fa-check-circle fa-2x"></i>
+      </div>
+    </div>
 
 
-            <!-- Logout Button -->
-            <form action="{{ url_for('auth.logout') }}" method="get" style="display:inline;">
-                <button type="submit" class="btn-secondary">Logout</button>
-            </form>
-        </div>
+    <!-- Card 3 -->
+    <div class="bg-white shadow-lg border-l-4 border-yellow-500 rounded-xl p-6 flex items-center justify-between transition hover:shadow-xl">
+      <div>
+        <h3 class="text-sm font-bold uppercase text-gray-500 mb-1">Overall Progress</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ overall_progress }}%</p>
+      </div>
+      <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+        <i class="fas fa-chart-line fa-2x"></i>
+      </div>
+    </div>
+  </section>
 
-    </header>
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <main class="main-content">
-        <!-- Overview Section -->
-        <section class="overview">
-            <div class="overview-card">
-                <h3>Courses</h3>
-                <p>You’re enrolled in <strong>{{ courses|length if courses is defined else 0 }} courses</strong>.</p>
-            </div>
-{#            <div class="overview-card">#}
-{#                <h3>Attendance</h3>#}
-{#                <p><strong>8 / 10</strong> sessions attended this month.</p>#}
-{#            </div>#}
-            <div class="overview-card">
-                <h3>Progress</h3>
-                <p>Overall completion: <strong></strong>.</p>
-            </div>
-        </section>
+    <article class="bg-white shadow-lg rounded-xl p-6 lg:col-span-2">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-list-alt text-blue-600 mr-2"></i>
+        My Active Courses
+      </h3>
+      <ul class="divide-y divide-gray-200">
+        {% if courses %}
+          {% for c in courses %}
+            <li class="py-5 flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div>
+                <h4 class="text-xl font-semibold text-gray-900 mb-1">{{ c.title }}</h4>
+                <p class="text-gray-600 text-sm line-clamp-2">
+                  {{ c.description }}
+                </p>
+              </div>
 
-        <!-- Detailed Sections -->
-        <section class="dashboard-section">
-            <article class="card">
-                <h3>Enrolled Courses</h3>
-                <ul class="course-list">
-                    {% if courses and courses|length > 0 %}
-                        {% for course in courses %}
-                        <li>
-                            <h4>{{ course.title }}</h4>
-                            <p>{{ course.description or 'No description available.' }}</p>
-                            <a href="{{ url_for('courses.course_detail', slug=course.slug) }}" class="view-link">Go to course →</a>
-                        </li>
-                        {% endfor %}
-                    {% else %}
-                        <li>No enrollments yet. Visit the course catalog to enroll.</li>
-                    {% endif %}
-                </ul>
-            </article>
+              <div class="w-full md:w-64 mt-3 md:mt-0 flex-shrink-0">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs text-gray-500 font-medium">
+                    Status: {{ 'Completed' if c.completed else 'In Progress' }}
+                  </span>
+                  <span class="text-xs font-bold {% if c.completed %}text-green-600{% else %}text-blue-600{% endif %}">
+                    {{ c.progress }}%
+                  </span>
+                </div>
 
-            <article class="card">
-                <h3>Upcoming Events</h3>
-                <ul class="event-list">
-                    {% for event in events %}
-                    <li>
-                        <strong>{{ event.title }}</strong> <br>
-                        <span class="event-date">{{ event.date }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </article>
+                <!-- Improved progress bar -->
+                <div class="relative w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    class="absolute top-0 left-0 h-2 rounded-full transition-all duration-500 
+                           {% if c.completed %}bg-green-500{% else %}bg-blue-500{% endif %}"
+                    style="width: {{ c.progress }}%;">
+                  </div>
+                </div>
 
-            <article class="card">
-                <h3>Latest News</h3>
-                <ul class="news-list">
-                    {% for item in news %}
-                    <li>
-                        <strong>{{ item.title }}</strong>
-                        <p>{{ item.summary }}</p>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </article>
-        </section>
-    </main>
+                <a href="{{ c.url }}"
+                   class="text-blue-600 hover:text-blue-700 hover:underline text-sm mt-3 inline-flex items-center">
+                   Continue Learning 
+                   <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                </a>
+              </div>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="text-gray-600 py-4">
+            <i class="fas fa-info-circle mr-2"></i>
+            You haven't enrolled in any courses yet.
+          </li>
+        {% endif %}
+      </ul>
+    </article>
+
+    <div class="lg:col-span-1 space-y-8">
+      <article class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-2xl font-bold text-gray-800 mb-5 flex items-center">
+          <i class="fas fa-history text-purple-600 mr-2"></i>
+          Recent Activity
+        </h3>
+        <ul class="space-y-4 divide-y divide-gray-100">
+          {% if recent_lessons %}
+            {% for c in recent_lessons %}
+              <li class="pt-3 flex justify-between items-start">
+                <div>
+                  <p class="font-medium text-gray-900">{{ c.lesson.title }}</p>
+                  <span class="text-gray-500 text-xs">
+                    Completed {{ c.completed_at.strftime('%b %d, %Y') }}
+                  </span>
+                </div>
+                <div class="text-green-500 flex-shrink-0 ml-4">
+                  <i class="fas fa-check text-lg"></i>
+                </div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="text-gray-600">No recent lesson completions found.</li>
+          {% endif %}
+        </ul>
+      </article>
+
+      <article class="bg-white shadow-lg rounded-xl p-6">
+        <h3 class="text-2xl font-bold text-gray-800 mb-5 flex items-center">
+          <i class="fas fa-calendar-alt text-red-500 mr-2"></i>
+          Upcoming Events
+        </h3>
+        <ul class="space-y-4 divide-y divide-gray-100">
+          {% if events %}
+            {% for event in events %}
+              <li class="pt-3">
+                <p class="font-medium text-gray-900">{{ event.title }}</p>
+                <span class="text-gray-500 text-sm flex items-center mt-1">
+                  <i class="far fa-clock mr-1 text-xs"></i>
+                  {{ event.date }}
+                </span>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="text-gray-600">No upcoming events scheduled.</li>
+          {% endif %}
+        </ul>
+      </article>
+    </div>
+
+    <article class="bg-white shadow-lg rounded-xl p-6 lg:col-span-3 mt-4">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+        <i class="fas fa-bullhorn text-orange-500 mr-2"></i>
+        News & Announcements
+      </h3>
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        {% if news %}
+          {% for n in news %}
+            <li class="border-l-4 border-orange-200 pl-4">
+              <h4 class="text-lg font-semibold text-gray-900 mb-1">{{ n.title }}</h4>
+              <p class="text-gray-600 text-sm line-clamp-2">{{ n.summary }}</p>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="text-gray-600 md:col-span-2">No current news or announcements.</li>
+        {% endif %}
+      </ul>
+    </article>
+
+  </section>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
