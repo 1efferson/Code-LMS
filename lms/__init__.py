@@ -11,6 +11,8 @@ from .auth import auth as auth_blueprint
 from .courses.routes import courses as courses_blueprint
 from .admin import admin as admin_blueprint
 from lms.commands import promote_admin
+from lms.instructor import instructor
+
 
 
 mail = Mail()  # ✅ initialize Flask-Mail globally
@@ -56,6 +58,7 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(courses_blueprint, url_prefix='/courses')
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    app.register_blueprint(instructor, url_prefix='/instructor')
 
     # Import models for Alembic
     from . import models 
