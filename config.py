@@ -18,9 +18,8 @@ def get_env_variable(name):
     return value
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
-    # Fallback to the instance sqlite file if DATABASE_URL is not set
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///instance/lms.db')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ADMIN_SIGNUP_CODE = os.getenv('ADMIN_SIGNUP_CODE')
     

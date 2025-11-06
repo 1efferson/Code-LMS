@@ -17,6 +17,7 @@ instance/
 
 # Environment files
 .env
+.env.production
 
 # macOS
 .DS_Store

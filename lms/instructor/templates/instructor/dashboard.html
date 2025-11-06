@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-8">
+    <h2 class="text-2xl font-semibold mb-6">Your Courses</h2>
+
+    {% if courses %}
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+        <table class="w-full border-collapse">
+            <thead class="bg-gray-100 text-gray-700 text-left">
+                <tr>
+                    <th class="px-5 py-3 text-sm font-medium">Course Title</th>
+                    <th class="px-5 py-3 text-sm font-medium">Students Enrolled</th>
+                    <th class="px-5 py-3 text-sm font-medium">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for course in courses %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-5 py-3 text-gray-800">
+                        {{ course.title }}
+                    </td>
+                    <td class="px-5 py-3 text-gray-800">
+                        {{ course.enrollments.count() }}
+                    </td>
+                    <td class="px-5 py-3">
+                        <a href="{{ url_for('instructor.course_students', course_id=course.id) }}"
+                           class="text-blue-600 hover:underline text-sm font-medium">
+                           View Students
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-600 mt-4">You are not assigned to any courses yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -84,41 +84,6 @@ Create a .env and flaskenv file respectively in the root directory and add:
 
  ```
 
-### 7. Seed Demo Data (Courses + Enrollments)
-To quickly visualize the dashboard with enrolled courses, seed the database with demo data:
-
-```bash
-# Run database migrations first if not already
-flask db upgrade
-
-# Run the seed command (explicitly specifying the app entrypoint)
-flask --app app.py seed-demo
-```
-
-This will create:
-- A demo instructor (instructor@example.com / password123)
-- A demo student (student@example.com / password123)
-- 3–4 published demo courses
-- Enroll the demo student into exactly 1 Beginner course
-
-Log in as student@example.com to see the single enrolled Beginner course on the Dashboard.
-
-### 8. Clear All Data (Keep Tables)
-If you want to remove all rows from the database but keep the schema/migrations intact:
-
-```bash
-flask --app app.py clear-data
-```
-
-Notes:
-- This deletes data from all tables in reverse dependency order and temporarily disables SQLite foreign key checks to avoid constraint violations.
-- Tables, schema, and migrations remain intact.
-- After clearing, you can re-run the seed:
-
-```bash
-flask --app app.py seed-demo
-```
-
 ## 🧩 Architecture & Blueprints
 
 The system is modular, using Flask Blueprints for clear separation of features.
@@ -156,6 +121,21 @@ Handles the core course logic — catalog, enrollment, and lessons.
 
 ---
 
+### **Instructor Blueprint**
+
+Provides tools for instructors to manage their courses, lessons, and students.
+
+| Route | Purpose | Access | Template |
+|------|---------|--------|----------|
+| `/instructor/dashboard` | Instructor dashboard with course overview | Instructor only | `instructor/dashboard.html` |
+| `/instructor/courses` | View and manage owned courses | Instructor only | `instructor/manage_courses.html` |
+| `/instructor/courses/create` | Create a new course | Instructor only (GET/POST) | `instructor/course_form.html` |
+| `/instructor/courses/<course_slug>/edit` | Edit course details | Instructor only | `instructor/course_form.html` |
+| `/instructor/courses/<course_slug>/lessons/create` | Create lessons for a course | Instructor only (GET/POST) | `instructor/lesson_form.html` |
+| `/instructor/courses/<course_slug>/lessons/<lesson_slug>/edit` | Edit an existing lesson | Instructor only | `instructor/lesson_form.html` |
+| `/instructor/students/<course_slug>` | View students enrolled in a course | Instructor only | `instructor/students_list.html` |
+
+---
 ## 🧱 Database Models
 
 The app uses SQLAlchemy ORM to manage relationships between entities.
@@ -167,7 +147,9 @@ The app uses SQLAlchemy ORM to manage relationships between entities.
 | **Module** | Organizes lessons within a course (e.g., “Introduction to Python”) |
 | **Lesson** | The core content unit — includes title, slug, and video embed URL |
 | **Enrollment** | Many-to-many relationship linking Users and Courses |
-| **Progress (In progress)** | Tracks lesson completion for each user |
+| **Progress** | Tracks lesson completion for each user |
+| **lesson_completion** | Tracks if a user has completed a course and is used in the computation of other stats |
+
 
 
 

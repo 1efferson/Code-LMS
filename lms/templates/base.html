@@ -81,6 +81,15 @@
                                 </a>
                             </li>
                         {% endif %}
+                        {% if current_user.role == 'instructor' %}
+                            <li>
+                                <a href="{{ url_for('instructor.dashboard') }}" 
+                                class="text-sm font-bold text-blue-400 hover:text-blue-300 border border-blue-400 hover:border-blue-300 px-3 py-1.5 rounded-full transition duration-150">
+                                    Instructor Dashboard
+                                </a>
+                            </li>
+                        {% endif %}
+
                     {% else %}
                         <!-- If user is NOT logged in -->
                         <li>

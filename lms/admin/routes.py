@@ -1,11 +1,12 @@
 # lms/admin/routes.py (Complete Code with Comments)
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from lms import db
 from lms.models.course import Course
 from lms.models.module import Module 
 from lms.models.lesson import Lesson 
 from . import admin
+from lms.models import User
 from .forms import CourseForm, ModuleForm, LessonForm
 from slugify import slugify 
 
@@ -355,3 +356,69 @@ def delete_lesson(lesson_id):
         flash(f'An error occurred while deleting the lesson: {e}', 'danger')
         
     return redirect(url_for('admin.manage_course_outline', course_id=course_id))
+
+# ===============================
+# USER MANAGEMENT/DELETE STUDENT ROUTES/STUDENT SEARCH FOR ADMIN 
+# ===============================
+
+@admin.route('/manage-users')
+@login_required
+def manage_users():
+    if not current_user.is_admin:
+        abort(403)
+    
+    query = request.args.get('q', '').strip()
+    
+    if query:
+        # Search by name or email
+        users = User.query.filter(
+            (User.name.ilike(f"%{query}%")) | 
+            (User.email.ilike(f"%{query}%"))
+        ).all()
+    else:
+        users = User.query.all()
+    
+    return render_template('admin/manage_users.html', users=users, search_query=query)
+
+
+@admin.route('/update_user_role/<int:user_id>', methods=['POST'])
+@login_required
+def update_user_role(user_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    user = User.query.get_or_404(user_id)
+    
+    # Update role
+    user.role = request.form.get('role')
+
+    # Update admin privilege
+    user.is_admin = bool(request.form.get('is_admin'))
+
+    db.session.commit()
+    flash(f"{user.name}'s permissions have been updated.", "success")
+    return redirect(url_for('admin.manage_users'))
+
+
+
+
+@admin.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if not current_user.is_admin:
+        abort(403)  # only admins
+
+    user = User.query.get_or_404(user_id)
+
+    # If the user teaches any courses, stop deletion
+    if len(user.courses_taught) > 0:
+        flash("Cannot delete this user because they are assigned as an instructor for one or more courses. Reassign the courses first.", "warning")
+        return redirect(url_for('admin.manage_users'))
+
+    # Safe to delete
+    db.session.delete(user)
+    db.session.commit()
+    flash("User deleted successfully.", "success")
+    return redirect(url_for('admin.manage_users'))
+
+

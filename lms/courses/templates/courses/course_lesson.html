@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ course.title }} | Lesson{% endblock %}
+
 {# --- HELPER MACRO: Generate YouTube embed URLs --- #}
 {% macro get_embed_url(content_url) %}
   {% set video_id = "" %}
@@ -18,6 +19,7 @@
     {{ content_url }}
   {% endif %}
 {% endmacro %}
+
 {% block content %}
 <section class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-400 py-10 px-6">
   <div class="max-w-7xl mx-auto space-y-8">
@@ -29,20 +31,18 @@
         <p class="opacity-70 mt-1">No lesson selected.</p>
       {% endif %}
     </header>
+
     <div class="flex flex-col gap-10">
-      {# ---- MAIN VIDEO SECTION (Reduced to 80% Width) ---- #}
+      {# ---- MAIN VIDEO SECTION ---- #}
       <div class="relative w-full aspect-video mx-auto lg:w-[80%]">
-        {# Main video player with higher z-index #}
-        <div class="absolute inset-0 rounded-2xl overflow-hidden shadow-xl bg-black/50 backdrop-blur-sm border border-white/10 z-20"> {# Added z-20 here #}
+        <div class="absolute inset-0 rounded-2xl overflow-hidden shadow-xl bg-black/50 backdrop-blur-sm border border-white/10 z-20">
           {% if current_lesson and current_lesson.content_url %}
-            <iframe
-              class="w-full h-full"
-              src="{{ get_embed_url(current_lesson.content_url) }}"
-              title="{{ current_lesson.title }}"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
+            <iframe class="w-full h-full"
+                    src="{{ get_embed_url(current_lesson.content_url) }}"
+                    title="{{ current_lesson.title }}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
           {% else %}
             <div class="flex items-center justify-center h-full text-white text-lg p-8 text-center">
               {% if current_lesson %}
@@ -53,7 +53,8 @@
             </div>
           {% endif %}
         </div>
-        {# --- SIDE PREVIEW VIDEOS (Now behind the main video) --- #}
+
+        {# --- SIDE PREVIEW VIDEOS (Previous / Next) --- #}
         {% set lessons = [] %}
         {% for module in modules %}
           {% for l in module.lessons.all() %}
@@ -63,40 +64,34 @@
         {% set current_index = lessons.index(current_lesson) if current_lesson in lessons else -1 %}
         {% set prev_lesson = lessons[current_index - 1] if current_index > 0 else None %}
         {% set next_lesson = lessons[current_index + 1] if current_index + 1 < lessons|length else None %}
-        
-        {# PREVIOUS VIDEO: z-index removed or set lower #}
+
         {% if prev_lesson %}
           {% set prev_video_id = get_embed_url(prev_lesson.content_url).split('/')[-1].split('?')[0] %}
           <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=prev_lesson.slug) }}"
-             class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0"> {# Changed z-10 to z-0 or simply removed it #}
+             class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0">
             <img src="https://img.youtube.com/vi/{{ prev_video_id }}/mqdefault.jpg" alt="" class="object-cover w-full h-full opacity-80">
             <div class="absolute inset-0 flex items-center justify-center text-white font-medium text-sm bg-black/30">Previous</div>
           </a>
         {% endif %}
-        
-        {# NEXT VIDEO: z-index removed or set lower #}
+
         {% if next_lesson %}
           {% set next_video_id = get_embed_url(next_lesson.content_url).split('/')[-1].split('?')[0] %}
           <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=next_lesson.slug) }}"
-             class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0"> {# Changed z-10 to z-0 or simply removed it #}
+             class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-[75%] w-[25%] h-full bg-white/20 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md border border-white/20 hover:scale-105 transition opacity-50 hover:opacity-100 z-0">
             <img src="https://img.youtube.com/vi/{{ next_video_id }}/mqdefault.jpg" alt="" class="object-cover w-full h-full opacity-80">
             <div class="absolute inset-0 flex items-center justify-center text-white font-medium text-sm bg-black/30">Up Next</div>
           </a>
         {% endif %}
-        
       </div>
-      
-      {# ---- CURRENT LESSON DETAILS (BELOW VIDEO) ---- #}
+
+      {# ---- CURRENT LESSON DETAILS ---- #}
       {% if current_lesson %}
         <div class="bg-white/10 backdrop-blur-sm border border-white/10 p-6 rounded-2xl shadow-lg text-white">
           <h2 class="text-xl font-semibold mb-2">{{ current_lesson.title }}</h2>
           <p class="opacity-90">{{ current_lesson.description or "Lesson content and notes will appear here." }}</p>
           <div class="mt-6">
             {% if is_complete %}
-              <button
-                class="bg-gray-500 text-white px-5 py-2 rounded-lg font-medium cursor-default shadow-sm"
-                disabled
-              >
+              <button class="bg-gray-500 text-white px-5 py-2 rounded-lg font-medium cursor-default shadow-sm" disabled>
                 Lesson Completed! ✓
               </button>
               <form action="{{ url_for('courses.unmark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST" class="inline-block ml-3">
@@ -106,10 +101,7 @@
             {% else %}
               <form action="{{ url_for('courses.mark_lesson_complete', lesson_slug=current_lesson.slug) }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button
-                  type="submit"
-                  class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md"
-                >
+                <button class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md">
                   Mark as Complete
                 </button>
               </form>
@@ -118,9 +110,7 @@
         </div>
       {% endif %}
 
-      ---
-
-      {# ---- COURSE LESSON LIST (AT THE BOTTOM) ---- #}
+      {# ---- COURSE LESSON LIST ---- #}
       <aside class="w-full">
         <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl shadow-lg overflow-hidden lg:w-3/4 mx-auto">
           <div class="p-4 border-b border-white/10 text-white">
@@ -152,17 +142,24 @@
                           No Video
                         </div>
                       {% endif %}
-                      <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                      {# --- PLAY / CURRENT INDICATOR --- #}
+                      <div class="absolute inset-0 flex items-center justify-center">
                         {% if current_lesson and l.slug == current_lesson.slug %}
-                          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                          <span class="w-5 h-5 rounded-full bg-white animate-pulse"></span>
                         {% else %}
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6 4l12 6-12 6V4z"></path>
+                          </svg>
                         {% endif %}
                       </div>
                     </div>
                     <div class="flex flex-col flex-grow">
                       <span class="font-medium text-sm leading-tight text-white hover:text-blue-300 transition line-clamp-2">
                         {{ l.title }}
+                        {# --- NEW badge if user hasn't completed the lesson --- #}
+                        {% if not l.completions | selectattr("user_id", "equalto", current_user.id) | list %}
+                          <span class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full ml-2">NEW</span>
+                        {% endif %}
                       </span>
                       <span class="text-xs text-gray-300 mt-1">{{ l.duration or "—" }}</span>
                     </div>

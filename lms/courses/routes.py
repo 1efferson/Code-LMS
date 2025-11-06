@@ -161,7 +161,8 @@ def course_lesson(course_slug, lesson_slug):
         course=course,
         current_lesson=lesson,
         modules=modules,
-        is_complete=is_complete
+        is_complete=is_complete,
+        enrollment=enrollment
     )
 
 # -------------------------------

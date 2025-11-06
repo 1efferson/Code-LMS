@@ -1,27 +1,22 @@
 # Use a lightweight Python base image
 FROM python:3.13-slim
 
-# Set environment variables for Flask
+# Avoid Python writing .pyc files and ensure output is logged straight
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    FLASK_APP=lms:create_app \
-    FLASK_RUN_HOST=0.0.0.0 \
-    FLASK_ENV=development
+    PYTHONDONTWRITEBYTECODE=1
 
-# Create and set working directory
+# Create working directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# Install dependencies first (better caching)
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the entire project into the image
+# Copy project
 COPY . .
 
-# Expose port Flask runs on
+# Expose the port gunicorn will serve on
 EXPOSE 5000
 
-# Default command to run the app
-CMD ["flask", "run"]
+# Gunicorn runs the Flask app factory
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "lms:create_app()"]
