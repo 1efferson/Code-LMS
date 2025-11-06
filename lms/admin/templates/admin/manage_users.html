@@ -3,16 +3,6 @@
 {% block admin_content %}
 <h1 class="text-2xl font-semibold mb-4">Manage Users</h1>
 
-{% for message in get_flashed_messages(with_categories=true) %}
-<div class="mb-4 p-3 rounded 
-    {% if message[0] == 'success' %} bg-green-100 text-green-800 
-    {% elif message[0] == 'warning' %} bg-yellow-100 text-yellow-800
-    {% elif message[0] == 'danger' %} bg-red-100 text-red-800
-    {% else %} bg-gray-100 text-gray-800 {% endif %}">
-    {{ message[1] }}
-</div>
-{% endfor %}
-
 <!-- Search bar -->
 <form method="GET" action="{{ url_for('admin.manage_users') }}" class="mb-4 flex items-center gap-2 w-1/2">
     <input type="text" name="q" value="{{ search_query or '' }}" 
