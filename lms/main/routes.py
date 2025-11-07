@@ -183,3 +183,7 @@ def update_avatar():
         flash('Avatar settings confirmed.', 'info')
 
     return redirect(url_for('main.profile'))
+
+@main.route("/healthz")
+def health_check():
+    return "OK", 200
