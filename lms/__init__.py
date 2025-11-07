@@ -4,6 +4,10 @@ from flask import Flask
 from .extensions import db, login_manager, csrf, bcrypt, migrate
 from flask_mail import Mail
 import logging
+from flask import render_template
+from flask_wtf.csrf import CSRFError
+from lms.errors.handlers import register_error_handlers
+
 
 # Import blueprints
 from .main import main as main_blueprint
@@ -38,6 +42,15 @@ def create_app(config_object='config.Config'):
     app = Flask('lms', instance_relative_config=True)
     app.config.from_object(config_object)
 
+
+# Tuning SQLAlchemy engine options for better performance
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_size": 10,          # number of persistent connections
+    "max_overflow": 5,        # number of connections beyond pool_size allowed
+    "pool_timeout": 30,       # seconds to wait for a free connection
+    "pool_recycle": 1800,     # recycle connections every 30 minutes
+}
+
     # CLI command
     app.cli.add_command(promote_admin)
     
@@ -62,5 +75,8 @@ def create_app(config_object='config.Config'):
 
     # Import models for Alembic
     from . import models 
+    
+    # Register error handlers
+    register_error_handlers(app)
     
     return app
