@@ -4,6 +4,10 @@ from flask import Flask
 from .extensions import db, login_manager, csrf, bcrypt, migrate
 from flask_mail import Mail
 import logging
+from flask import render_template
+from flask_wtf.csrf import CSRFError
+from lms.errors.handlers import register_error_handlers
+
 
 # Import blueprints
 from .main import main as main_blueprint
@@ -62,5 +66,8 @@ def create_app(config_object='config.Config'):
 
     # Import models for Alembic
     from . import models 
+    
+    # Register error handlers
+    register_error_handlers(app)
     
     return app
