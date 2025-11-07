@@ -5,18 +5,28 @@ FROM python:3.13-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Create working directory
+# Set working directory
 WORKDIR /app
 
-# Install dependencies first (better caching)
+# Install Node so Tailwind CLI can run
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean
+
+# Install Python dependencies first (caching optimization)
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy project
+# Copy project files
 COPY . .
 
-# Expose the port gunicorn will serve on
+# Install Tailwind CLI and build CSS
+RUN npm install -D tailwindcss @tailwindcss/cli
+RUN npx @tailwindcss/cli -i lms/static/css/input.css -o lms/static/css/output.css --minify
+
+# Expose port
 EXPOSE 5000
 
-# Gunicorn runs the Flask app factory
+# Start Gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "lms:create_app()"]
