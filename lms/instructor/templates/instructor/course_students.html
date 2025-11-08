@@ -1,37 +1,77 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6">Students Enrolled in {{ course.title }}</h2>
+<div class="min-h-screen p-4 sm:p-8" style="background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
 
-    {% if students %}
-    <div class="overflow-x-auto bg-white shadow rounded-lg">
-        <table class="w-full border-collapse">
-            <thead class="bg-gray-100 text-gray-700 text-left">
-                <tr>
-                    <th class="px-5 py-3 text-sm font-medium">Student Name</th>
-                    <th class="px-5 py-3 text-sm font-medium">Email</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for student in students %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-5 py-3 text-gray-800">{{ student.name }}</td>
-                    <td class="px-5 py-3 text-gray-800">{{ student.email }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <p class="text-gray-600 mt-4">No students are enrolled in this course yet.</p>
-    {% endif %}
+    <div class="max-w-7xl mx-auto py-8 px-4 flex flex-col min-h-[calc(100vh-64px)]">
 
-    <div class="mt-6">
-        <a href="{{ url_for('instructor.dashboard') }}"
-           class="inline-block px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-           Back
-        </a>
+        <h2 class="text-3xl font-extrabold mb-10 text-white text-shadow-lg">
+            Enrolled Students: {{ course.title }}
+        </h2>
+
+        {% if students %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+            
+            {% for student in students %}
+            <div class="p-6 rounded-2xl shadow-xl border border-white/50 bg-white/10 backdrop-blur-sm 
+                        hover:bg-white/20 transform hover:scale-[1.02] transition duration-300 ease-in-out">
+                
+                <div class="flex items-start mb-5">
+                    <div class="w-14 h-14 rounded-full bg-pink-500 text-white flex items-center justify-center text-xl font-extrabold mr-4 flex-shrink-0 shadow-lg border-2 border-white">
+                        {{ student.name[:1].upper() }}
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-white leading-snug">{{ student.name }}</h3>
+                        <p class="text-white/80 text-sm font-medium truncate">{{ student.email }}</p>
+                    </div>
+                </div>
+
+                {% set progress = (student.lessons_watched / student.courses_enrolled) * 100 if student.courses_enrolled > 0 else 0 %}
+                <div class="mb-5">
+                    <div class="flex justify-between text-xs font-medium text-white/80 mb-1">
+                        <span>Progress</span>
+                        <span>{{ progress|round(1) }}%</span>
+                    </div>
+                    <div class="w-full bg-white/30 rounded-full h-2">
+                        <div class="bg-teal-400 h-2 rounded-full transition-all duration-500 shadow-md shadow-teal-500/50" style="width: {{ progress }}%"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-sm text-white">
+                    <p class="flex justify-between">
+                        <span class="font-medium text-white/90">Watched:</span> 
+                        <span class="font-semibold">{{ student.lessons_watched }}</span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="font-medium text-white/90">Completed:</span> 
+                        <span class="font-semibold text-green-300">{{ student.courses_completed }}</span>
+                    </p>
+                    <p class="flex justify-between">
+                        <span class="font-medium text-white/90">Last Active:</span> 
+                        <span class="text-xs bg-white/20 px-2 py-0.5 rounded">{{ student.last_active }}</span>
+                    </p>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+        {% else %}
+            <div class="bg-white/10 border border-white/40 p-6 rounded-xl shadow-lg text-center backdrop-blur-sm" role="alert">
+                <p class="text-xl font-semibold text-white mb-2">No Students Enrolled</p>
+                <p class="text-white/80">This course needs students! Time to share the link.</p>
+            </div>
+        {% endif %}
+
+        <div class="mt-auto text-center pb-4">
+            <a href="{{ url_for('instructor.dashboard') }}"
+            class="inline-flex items-center px-6 py-2 border-2 border-white/70 text-base font-medium rounded-full shadow-xl text-white 
+            bg-transparent hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/50 transition duration-200">
+            ← Back to Dashboard
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}
