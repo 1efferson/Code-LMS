@@ -1,69 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Basic HTML setup -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Dynamic title block -->
+    <!-- Page title, allows child templates to override -->
     <title>{% block title %}LMS{% endblock %}</title>
 
-    <!-- CSS stylesheets -->
+    <!-- Main Tailwind CSS stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+    <!-- Loader animation CSS -->
     <link rel="stylesheet" href="{{ url_for('main.static', filename='css/loader.css') }}">
 
-    <!-- Favicon (small logo shown in browser tab) -->
+    <!-- Favicon displayed in browser tab -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/code-lms-logo.png') }}">
 
-    <!-- FontAwesome icons -->
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <!-- Flash message animation JS -->
+    <!-- JS for flash message animations, loaded deferred -->
     <script src="{{ url_for('static', filename='js/base_flash_msg.js') }}" defer></script>
 
-    <!-- Allow child templates to add more CSS -->
+    <!-- Additional CSS block for child templates -->
     {% block head_css %}{% endblock %}
 </head>
 
-
 <body class="bg-white min-h-screen flex flex-col font-barriecito" style="margin: 0; padding: 0; overflow-x: hidden;">
 
-    <!-- Show navbar unless 'hide_navbar' is True (useful for login/register pages) -->
+    <!-- Navbar: only show if 'hide_navbar' is not True (e.g., hidden on login/register pages) -->
     {% if not hide_navbar %}
 <header class="bg-gray-800 shadow-xl sticky top-0 z-50">
     <div class="w-full px-4 sm:px-6 lg:px-8">  
         <div class="flex justify-between items-center h-16">
             
-            <!-- Site Logo and Name -->
+            <!-- Site logo and name linking to homepage -->
             <a href="{{ url_for('main.home') }}" 
-            class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-indigo-400 hover:text-indigo-300 transition duration-150 ease-in-out">
+               class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-indigo-400 hover:text-indigo-300 transition duration-150 ease-in-out">
                 <img src="{{ url_for('static', filename='images/code-lms-logo.png') }}" 
-                    alt="CodeLMS Logo" class="w-8 h-8 object-contain">
+                     alt="CodeLMS Logo" class="w-8 h-8 object-contain">
                 CODE-LMS
             </a>
 
-            <!-- Desktop Navigation Menu -->
+            <!-- Desktop Navigation Menu (hidden on mobile) -->
             <nav class="hidden md:flex md:space-x-8 items-center">
                 <ul class="flex space-x-6 items-center">
-                    <!-- Show Home link only if NOT logged in -->
+                    <!-- Home link only shown to unauthenticated users -->
                     {% if not current_user.is_authenticated %}
                         <li>
                             <a href="{{ url_for('main.home') }}" 
-                            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                               class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
                                 Home
                             </a>
                         </li>
                     {% endif %}
                     
-                    <!-- Show these links only if user is logged in -->
+                    <!-- Links visible only when user is logged in -->
                     {% if current_user.is_authenticated %}
+                        <!-- Courses link -->
                         <li>
                             <a href="{{ url_for('courses.index') }}" 
-                            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                               class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
                                 Courses
                             </a>
                         </li>
 
+                        <!-- Profile icon with user initials -->
                         <li class="relative ml-4 pl-4 border-l border-gray-700">
                             <a href="{{ url_for('main.profile') }}" class="flex items-center space-x-2 group">
                                 <span class="sr-only">View Profile</span>
@@ -73,40 +74,42 @@
                             </a>
                         </li>
 
+                        <!-- Admin dashboard link, only for admin users -->
                         {% if current_user.is_admin %}
                             <li>
                                 <a href="{{ url_for('admin.admin_index') }}" 
-                                class="text-sm font-bold text-yellow-400 hover:text-yellow-300 border border-yellow-400 hover:border-yellow-300 px-3 py-1.5 rounded-full transition duration-150">
+                                   class="text-sm font-bold text-yellow-400 hover:text-yellow-300 border border-yellow-400 hover:border-yellow-300 px-3 py-1.5 rounded-full transition duration-150">
                                     Admin Dashboard
                                 </a>
                             </li>
                         {% endif %}
+
+                        <!-- Instructor dashboard link, only for instructor role -->
                         {% if current_user.role == 'instructor' %}
                             <li>
                                 <a href="{{ url_for('instructor.dashboard') }}" 
-                                class="text-sm font-bold text-blue-400 hover:text-blue-300 border border-blue-400 hover:border-blue-300 px-3 py-1.5 rounded-full transition duration-150">
+                                   class="text-sm font-bold text-blue-400 hover:text-blue-300 border border-blue-400 hover:border-blue-300 px-3 py-1.5 rounded-full transition duration-150">
                                     Instructor Dashboard
                                 </a>
                             </li>
                         {% endif %}
 
                     {% else %}
-                        <!-- If user is NOT logged in -->
+                        <!-- Login & Register buttons for unauthenticated users -->
                         <li>
                             <a href="{{ url_for('auth.login') }}" 
-                            class="text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150">
+                               class="text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150">
                                 Login
                             </a>
                         </li>
                         <li>
                             <a href="{{ url_for('auth.register') }}" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg transition duration-150 ease-in-out">
+                               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg transition duration-150 ease-in-out">
                                 Get Started
                             </a>
                         </li>
                     {% endif %}
                 </ul>
-
             </nav>
 
             <!-- Mobile menu button (hamburger icon) -->
@@ -124,9 +127,11 @@
     <!-- Mobile navigation dropdown (hidden by default) -->
     <div class="md:hidden hidden" id="mobile-menu">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <!-- Home link for mobile -->
             <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
             
             {% if current_user.is_authenticated %}
+                <!-- Authenticated mobile links -->
                 <a href="{{ url_for('courses.index') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Courses</a>
                 
                 {% if current_user.is_admin %}
@@ -136,6 +141,7 @@
                 <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}" class="bg-red-600 hover:bg-red-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2">Logout</a>
             {% else %}
+                <!-- Unauthenticated mobile links -->
                 <a href="{{ url_for('auth.login') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Login</a>
                 <a href="{{ url_for('auth.register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2">Get Started</a>
             {% endif %}
@@ -144,28 +150,23 @@
 </header>
 {% endif %}
 
-<!-- Flash message container (for success/info/warning messages) -->
+
+<!-- Flash messages -->
 <div id="flash-message-container" class="fixed top-24 right-0 z-50 p-4 space-y-3 w-full max-w-sm sm:max-w-md pointer-events-none">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-            
-            <!-- Color scheme for each message category -->
             {% set color = {
                 'success': 'bg-green-100 text-green-800 border-green-400',
                 'danger': 'bg-red-100 text-red-800 border-red-400',
                 'info': 'bg-blue-100 text-blue-800 border-blue-400',
                 'warning': 'bg-yellow-100 text-yellow-800 border-yellow-400'
             }.get(category, 'bg-gray-100 text-gray-800 border-gray-400') %}
-
-            <!-- Flash message card -->
             <div class="p-4 rounded-lg shadow-xl pointer-events-auto transition-all duration-500 ease-in-out" role="alert">
                 <div class="flex items-start border-l-4 p-2 {{ color }}">
-                    <div class="flex-shrink-0 mr-3">
-                        <span class="font-bold text-lg leading-none">!</span>
-                    </div>
+                    <div class="flex-shrink-0 mr-3"><span class="font-bold text-lg leading-none">!</span></div>
                     <div>
-                        <strong class="font-semibold capitalize block">{{ category }}</strong> 
+                        <strong class="font-semibold capitalize block">{{ category }}</strong>
                         <p class="text-sm mt-0.5">{{ message }}</p>
                     </div>
                 </div>
@@ -175,7 +176,7 @@
     {% endwith %}
 </div>
 
-<!-- Page loader animation (shown during slow loads) -->
+<!-- Loader -->
 <div class="loader">
   <svg width="100" height="100" viewBox="0 0 100 100">
     <defs>
@@ -190,11 +191,8 @@
   <div class="box"></div>
 </div>
 
-
-<!-- Main content area (where child templates inject content) -->
-<main class="flex-grow">
-    {% block content %}{% endblock %}
-</main>
+<!-- Main content -->
+<main class="flex-grow">{% block content %}{% endblock %}</main>
 
 <!-- Footer -->
 <footer class="bg-white text-black py-4 mt-10">
@@ -203,37 +201,63 @@
     </div>
 </footer>
 
-<!-- Loader script -->
-<script src="{{ url_for('static', filename='js/loader.js') }}"></script>
+<!-- Session timeout modal -->
+<div id="session-modal" class="fixed inset-0 hidden flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-80 text-center">
+        <h3 class="text-lg font-bold mb-2">Session Expiring</h3>
+        <p class="text-sm mb-4">Your session will expire in <span id="countdown">60</span> seconds.</p>
+        <div class="flex justify-center gap-4">
+            <button id="stay-signed-in" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">Stay Signed In</button>
+            <button id="logout-now" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">Logout</button>
+        </div>
+    </div>
+</div>
 
-<!-- Optional script block for specific pages -->
+<script src="{{ url_for('static', filename='js/loader.js') }}"></script>
 {% block scripts %}{% endblock %}
 
-<!-- Automatically hide flash messages after 5 seconds -->
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const alertElements = document.querySelectorAll('[role="alert"]');
-        
-        alertElements.forEach(function(element) {
-            setTimeout(function() {
-                element.style.transition = 'opacity 0.5s ease-out';
-                element.style.opacity = '0';
-                setTimeout(function() {
-                    element.remove();
-                }, 500);
-            }, 5000);
+document.addEventListener("DOMContentLoaded", function () {
+    // Flash messages
+    document.querySelectorAll('[role="alert"]').forEach(el => {
+        setTimeout(() => { el.style.opacity = 0; setTimeout(()=>el.remove(),500); }, 5000);
+    });
+
+    // Session timeout logic
+    const sessionLifetimeMs = 2 * 60 * 1000; // 30 min
+    const warningBeforeMs = 60 * 1000;       // 1 min before
+    let countdownInterval;
+
+    setTimeout(() => {
+        const modal = document.getElementById('session-modal');
+        const countdownEl = document.getElementById('countdown');
+        let timeLeft = 60;
+
+        modal.classList.remove('hidden');
+        countdownEl.textContent = timeLeft;
+
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+            countdownEl.textContent = timeLeft;
+            if(timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = "{{ url_for('auth.logout') }}";
+            }
+        }, 1000);
+
+        document.getElementById('stay-signed-in').addEventListener('click', () => {
+            fetch("/keep-alive", { method: "POST" }).then(() => {
+                clearInterval(countdownInterval);
+                modal.classList.add('hidden');
+            });
         });
 
-        // Confirmation dialog for logout
-        logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function(event) {
-                if (!confirm('Are you sure you want to logout?')) {
-                    event.preventDefault();
-                }
-            });
-        }
-    });
+        document.getElementById('logout-now').addEventListener('click', () => {
+            window.location.href = "{{ url_for('auth.logout') }}";
+        });
+
+    }, sessionLifetimeMs - warningBeforeMs);
+});
 </script>
 
 </body>

@@ -71,6 +71,7 @@ def login():
         
         # Verify credentials
         if user and bcrypt.check_password_hash(user.password, form.password.data):
+            session.permanent = True 
             login_user(user)
             current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
             flash('Login successful!', 'success')

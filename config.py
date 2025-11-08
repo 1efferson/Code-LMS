@@ -5,6 +5,7 @@
 
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Load environment variables from .env file
 load_dotenv(dotenv_path=".env.production")
@@ -39,3 +40,5 @@ class Config:
     # Ensure required mail variables are set
     if not all([MAIL_USERNAME, MAIL_PASSWORD]):
         print("WARNING: MAIL_USERNAME and MAIL_PASSWORD are not set in environment variables!")
+
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=2)  # 30 mins session lifetime

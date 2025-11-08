@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request,session
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from lms import db
@@ -187,3 +187,8 @@ def update_avatar():
 @main.route("/healthz")
 def health_check():
     return "OK", 200
+
+@main.route('/keep-alive', methods=['POST'])
+def keep_alive():
+    session.permanent = True
+    return ("ok", 200)
