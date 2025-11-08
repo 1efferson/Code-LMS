@@ -49,6 +49,7 @@ def create_app(config_object='config.Config'):
     "max_overflow": 5,        # number of connections beyond pool_size allowed
     "pool_timeout": 30,       # seconds to wait for a free connection
     "pool_recycle": 1800,     # recycle connections every 30 minutes
+    "pool_pre_ping": True,
 }
 
     # CLI command

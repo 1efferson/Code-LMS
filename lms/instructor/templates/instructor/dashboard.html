@@ -1,41 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6">Your Courses</h2>
+<div class="min-h-screen p-4 sm:p-8" style="background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
 
-    {% if courses %}
-    <div class="overflow-x-auto bg-white shadow rounded-lg">
-        <table class="w-full border-collapse">
-            <thead class="bg-gray-100 text-gray-700 text-left">
-                <tr>
-                    <th class="px-5 py-3 text-sm font-medium">Course Title</th>
-                    <th class="px-5 py-3 text-sm font-medium">Students Enrolled</th>
-                    <th class="px-5 py-3 text-sm font-medium">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for course in courses %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-5 py-3 text-gray-800">
-                        {{ course.title }}
-                    </td>
-                    <td class="px-5 py-3 text-gray-800">
-                        {{ course.enrollments.count() }}
-                    </td>
-                    <td class="px-5 py-3">
-                        <a href="{{ url_for('instructor.course_students', course_id=course.id) }}"
-                           class="text-blue-600 hover:underline text-sm font-medium">
-                           View Students
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="max-w-5xl mx-auto py-8">
+        
+        <h2 class="text-3xl font-extrabold mb-10 text-white text-shadow-lg">
+            Your Courses
+        </h2>
+
+        {% if courses %}
+        <div class="overflow-x-auto rounded-xl shadow-2xl border border-white/50 bg-white/10 backdrop-blur-md">
+            
+            <table class="w-full border-collapse">
+                
+                <thead class="bg-white/20 text-white text-left border-b border-white/50">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-bold tracking-wider">📚 Course Title</th>
+                        <th class="px-6 py-4 text-sm font-bold tracking-wider">👥 Students Enrolled</th>
+                        <th class="px-6 py-4 text-sm font-bold tracking-wider">🔗 Actions</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-white/20">
+                    {% for course in courses %}
+                    <tr class="hover:bg-white/10 transition duration-150">
+                        <td class="px-6 py-4 text-white font-medium">
+                            {{ course.title }}
+                        </td>
+                        <td class="px-6 py-4 text-white/80 font-medium">
+                            <span class="inline-flex items-center px-3 py-1 text-sm font-semibold text-teal-900 bg-teal-200 rounded-full shadow-sm">
+                                {{ course.enrollments.count() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="{{ url_for('instructor.course_students', course_id=course.id) }}"
+                               class="text-teal-400 hover:text-teal-300 transition duration-150 text-sm font-medium hover:underline">
+                                View Students →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-white/10 border border-white/40 p-6 rounded-xl shadow-lg text-center backdrop-blur-sm" role="alert">
+            <p class="text-xl font-semibold text-white mb-2">No Courses Assigned</p>
+            <p class="text-white/80">You are not assigned to any courses yet. Please check with an administrator.</p>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <p class="text-gray-600 mt-4">You are not assigned to any courses yet.</p>
-    {% endif %}
 </div>
 {% endblock %}
