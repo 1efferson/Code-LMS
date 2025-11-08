@@ -165,8 +165,8 @@ The app uses SQLAlchemy ORM to manage relationships between entities.
 
 ## Authors
 
-  ** Jeph Ampadu**
-  ** Jude tetteh-Fio**
+  **Jeph Ampadu**
+  **Jude tetteh-Fio**
 
 ## License
 
