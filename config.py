@@ -41,4 +41,4 @@ class Config:
     if not all([MAIL_USERNAME, MAIL_PASSWORD]):
         print("WARNING: MAIL_USERNAME and MAIL_PASSWORD are not set in environment variables!")
 
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=2)  # 30 mins session lifetime
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)  # 30 mins session lifetime
