@@ -1,7 +1,7 @@
 # lms/__init__.py
 
 from flask import Flask
-from .extensions import db, login_manager, csrf, bcrypt, migrate
+from .extensions import db, login_manager, csrf, bcrypt, migrate,cache
 from flask_mail import Mail
 import logging
 from flask import render_template
@@ -16,9 +16,6 @@ from .courses.routes import courses as courses_blueprint
 from .admin import admin as admin_blueprint
 from lms.commands import promote_admin
 from lms.instructor import instructor
-from flask_caching import Cache
-
-cache = Cache()  # create cache instance
 
 
 
