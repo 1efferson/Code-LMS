@@ -16,6 +16,9 @@ from .courses.routes import courses as courses_blueprint
 from .admin import admin as admin_blueprint
 from lms.commands import promote_admin
 from lms.instructor import instructor
+from flask_caching import Cache
+
+cache = Cache()  # create cache instance
 
 
 
@@ -62,6 +65,7 @@ def create_app(config_object='config.Config'):
     csrf.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)  
+    cache.init_app(app) 
     
     # Flask-Login config
     login_manager.login_view = 'auth.login'

@@ -1,10 +1,11 @@
 /* From Uiverse.io by andrew-manzyk */ 
 .loader {
-  --color-one: #ffbf48;
-  --color-two: #be4a1d;
-  --color-three: #ffbf4780;
-  --color-four: #bf4a1d80;
-  --color-five: #ffbf4740;
+  --color-one: #2563eb;     /* Tailwind blue-600 */
+  --color-two: #1e40af;     /* Tailwind blue-800 (darker shade) */
+
+  --color-three: #588af5a7; /* blue-600 @ 50% opacity */
+  --color-four:  #486bdf80; /* blue-800 @ 50% opacity */
+  --color-five:  #6897ff; /* blue-600 @ 25% opacity */
   --time-animation: 2s;
   --size: 1;
   position: relative;

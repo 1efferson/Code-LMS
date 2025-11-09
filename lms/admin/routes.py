@@ -9,6 +9,7 @@ from . import admin
 from lms.models import User
 from .forms import CourseForm, ModuleForm, LessonForm
 from slugify import slugify 
+from lms import cache
 
 def is_admin(user):
     """Helper to check if the current user is an admin."""
@@ -20,6 +21,7 @@ def is_admin(user):
 
 @admin.route('/')
 @login_required
+@cache.cached(timeout=120)
 def admin_index():
     """Redirects admins to the course management page."""
     if not is_admin(current_user):
@@ -103,6 +105,7 @@ def edit_course(course_id):
 
 @admin.route('/courses/manage')
 @login_required
+@cache.cached(timeout=120)
 def manage_courses():
     """Displays all courses to the admin."""
     if not is_admin(current_user):
@@ -163,6 +166,7 @@ def delete_course(course_id):
 
 @admin.route('/courses/<int:course_id>/outline')
 @login_required
+@cache.cached(timeout=120)
 def manage_course_outline(course_id):
     """Displays the full structure of a course (modules and lessons)."""
     if not is_admin(current_user):

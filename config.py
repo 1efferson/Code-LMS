@@ -42,3 +42,7 @@ class Config:
         print("WARNING: MAIL_USERNAME and MAIL_PASSWORD are not set in environment variables!")
 
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)  # 30 mins session lifetime
+
+    # Simple in-memory cache (for development or small apps)
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300  # seconds (5 minutes)
