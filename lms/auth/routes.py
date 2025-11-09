@@ -7,6 +7,8 @@ from lms.models import User
 from .forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from . import auth
 from lms.utils import send_reset_email
+from datetime import date, timedelta
+
 
 
 # ---------------------------
@@ -39,6 +41,10 @@ def register():
             is_admin=is_admin_user 
         )
         
+        # Initialize login streak for first-time user
+        user.login_streak = 1
+        user.streak_last_active = date.today()
+        
         # Add and commit new user to database
         db.session.add(user)
         db.session.commit()
@@ -55,8 +61,9 @@ def register():
     return render_template('auth/register.html', form=form)
 
 
+
 # ---------------------------
-# Login route
+# Login route (Complete and Corrected)
 # ---------------------------
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -65,28 +72,68 @@ def login():
         return redirect(url_for('courses.index'))
 
     form = LoginForm()
+
+    # When the form is submitted and all fields validate
     if form.validate_on_submit():
         # Look up user by email
         user = User.query.filter_by(email=form.email.data).first()
         
-        # Verify credentials
+        # Verify credentials using bcrypt
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            session.permanent = True 
+            # Make the session permanent so PERMANENT_SESSION_LIFETIME applies
+            session.permanent = True
+
+            # Log the user in (Flask-Login)
             login_user(user)
-            current_app.logger.debug("login_user called for id=%s; session keys=%s", user.id, list(session.keys()))
+            current_app.logger.debug(
+                "login_user called for id=%s; session keys=%s", user.id, list(session.keys())
+            )
+
+            # --- DAILY LOGIN STREAK LOGIC (Streamlined) ---
+            try:
+                today = date.today()
+                last_active = user.streak_last_active
+                current_streak = user.login_streak
+
+                # State 1: New/Reset Streak (First login, or missed a day/more)
+                # Check if last_active is None OR if the last login was more than 1 day ago
+                if last_active is None or last_active < today - timedelta(days=1):
+                    user.login_streak = 1
+                    user.streak_last_active = today
+                    
+                # State 2: Continued Streak (Logged in exactly yesterday)
+                elif last_active == today - timedelta(days=1):
+                    user.login_streak = current_streak + 1
+                    user.streak_last_active = today
+                    
+                # State 3: Already Active Today (last_active == today)
+                # No change needed; the streak is maintained but not incremented.
+
+                db.session.commit()
+                
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.exception(
+                    "Failed to update login streak for user %s: %s", user.id, e
+                )
+            # --- END STREAK LOGIC ---
+
             flash('Login successful!', 'success')
 
-            # Redirect to next page if available, else to course index
+            # Redirect to next page if available and safe, else to course index
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
             return redirect(url_for('courses.index'))
         else:
-            # Display invalid credentials message
+            # Invalid credentials
             flash('Invalid email or password.', 'danger')
 
-    # Render login page with form
+    # Render login page with form (GET or failed POST)
     return render_template('auth/login.html', form=form)
+
+
+    
 
 
 # ---------------------------

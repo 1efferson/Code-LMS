@@ -17,6 +17,8 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     bio = db.Column(db.Text, default='')
     location = db.Column(db.String(100), default='')
+    streak_last_active = db.Column(db.Date, nullable=True)
+    login_streak = db.Column(db.Integer, default=0)
 
     # -------------------------------
     # Relationships

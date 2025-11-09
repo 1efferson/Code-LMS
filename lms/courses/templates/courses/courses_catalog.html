@@ -1,11 +1,11 @@
-<!-- lms/courses/templates/courses_catalog -->
- {% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Course Catalog | Code-LMS{% endblock %}
 
 {% block head_css %}
 <link rel="stylesheet" href="{{ url_for('courses.static', filename='css/course_catalog.css') }}">
 <script src="{{ url_for('static', filename='js/course_catalog.js') }}" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.11.2/lottie.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,6 @@
             </div>
             <div class="course-grid">
                 
-                <!-- Loop through courses and display 'Beginner' ones -->
                 {% for course in courses if course.level == 'Beginner' %}
                 <div class="course-card" data-level="{{ course.level }}">
                     <div class="card-header beginner-header">{{ course.category or 'Programming' }}</div>
@@ -34,7 +33,6 @@
                         <p>{{ course.description or 'No description available.' }}</p>
                     </div>
                     <div class="card-footer">
-                        <!-- This link now points to the course detail page -->
                         <a href="{{ url_for('courses.course_detail', slug=course.slug) }}" class="enroll-btn enroll-btn-primary">
                             Start Now
                         </a>
@@ -52,7 +50,6 @@
             </div>
             <div class="course-grid">
                 
-                <!-- Loop through courses and display 'Intermediate' ones -->
                 {% for course in courses if course.level == 'Intermediate' %}
                 <div class="course-card" data-level="{{ course.level }}">
                     <div class="card-header intermediate-header">{{ course.category or 'Development' }}</div>
@@ -78,7 +75,6 @@
             </div>
             <div class="course-grid">
                 
-                <!-- Loop through courses and display 'Advanced' ones -->
                 {% for course in courses if course.level == 'Advanced' %}
                 <div class="course-card" data-level="{{ course.level }}">
                     <div class="card-header advanced-header">{{ course.category or 'Full-Stack' }}</div>
@@ -98,5 +94,41 @@
         </section>
 
     </div>
+
+    <!-- STREAK CARD -->
+    {% if current_user.is_authenticated %}
+    <div id="streak-card" class="fixed bottom-6 right-6 w-64 bg-white/40 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg p-4 flex items-center gap-4 animate-fadeIn animate-pop">
+        <!-- Lottie container -->
+        <div id="lottie-streak" class="w-16 h-16"></div>
+        <div>
+            <div class="text-sm text-gray-700 font-semibold">🔥 Daily Streak</div>
+            <div class="text-lg font-bold text-gray-900">{{ current_user.login_streak }} day{% if current_user.login_streak > 1 %}s{% endif %}</div>
+        </div>
+    </div>
+
+    <script>
+        lottie.loadAnimation({
+            container: document.getElementById('lottie-streak'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '{{ url_for("static", filename="lottie/streak.json") }}'
+        });
+    </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-pop { animation: pop 0.6s ease-out forwards; }
+    </style>
+    {% endif %}
 
 {% endblock %}
