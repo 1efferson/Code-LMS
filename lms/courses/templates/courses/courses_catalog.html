@@ -18,7 +18,6 @@
 
     <div class="catalog-container">
 
-        <!-- BEGINNER LEVEL SECTION -->
         <section id="beginner" class="course-level-section">
             <div class="section-header">
                 <h2>Beginner Level: Foundations</h2>
@@ -43,7 +42,6 @@
             </div>
         </section>
 
-        <!-- INTERMEDIATE LEVEL SECTION -->
         <section id="intermediate" class="course-level-section">
             <div class="section-header">
                 <h2>Intermediate Level: Practical Application</h2>
@@ -68,7 +66,6 @@
             </div>
         </section>
 
-        <!-- ADVANCED LEVEL SECTION -->
         <section id="advanced" class="course-level-section">
             <div class="section-header">
                 <h2>Advanced Level: Full-Stack Development</h2>
@@ -95,10 +92,8 @@
 
     </div>
 
-    <!-- STREAK CARD -->
-    {% if current_user.is_authenticated %}
+    {% if current_user.is_authenticated and current_user.last_login.date() == today.date() %}
     <div id="streak-card" class="fixed bottom-6 right-6 w-64 bg-white/40 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg p-4 flex items-center gap-4 animate-fadeIn animate-pop">
-        <!-- Lottie container -->
         <div id="lottie-streak" class="w-16 h-16"></div>
         <div>
             <div class="text-sm text-gray-700 font-semibold"> Daily Streak</div>
@@ -107,13 +102,17 @@
     </div>
 
     <script>
-        lottie.loadAnimation({
-            container: document.getElementById('lottie-streak'),
+    // Load the Lottie animation using the data passed from the Flask route
+    {% if lottie_animation %}
+        Lottie.loadAnimation({
+            container: document.getElementById('lottie-streak'), 
             renderer: 'svg',
             loop: true,
             autoplay: true,
-            path: '{{ url_for("courses.static", filename="lottie/streak.json") }}'
+            // Embed the JSON data directly using the |tojson filter
+            animationData: {{ lottie_animation | tojson }}, 
         });
+    {% endif %}
     </script>
 
     <style>
