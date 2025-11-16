@@ -11,6 +11,7 @@ from lms.models.lesson import Lesson
 from lms.models.lesson_completion import LessonCompletion 
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select # Added select for explicit queries
+from datetime import datetime
 
 # -------------------------------
 #  Course Catalog
@@ -27,7 +28,7 @@ def index():
     )
 
     courses_list = db.session.execute(stmt).scalars().all()
-    return render_template('courses/courses_catalog.html', courses=courses_list)
+    return render_template('courses/courses_catalog.html', courses=courses_list,today=datetime.utcnow())
 
 
 # -------------------------------
