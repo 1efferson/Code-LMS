@@ -41,6 +41,13 @@
       >
         Go to Lessons
       </a>
+      <br class="mt-2">
+      <a
+        href="{{ url_for('courses.course_chat', course_slug=course.slug) }}"
+        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+      >
+        Chat with Instructor
+      </a>
     {% endif %}
   </div>
 </div>

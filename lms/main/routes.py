@@ -101,6 +101,9 @@ def dashboard():
         if courses_data else 0
     )
 
+    # --- Unread Messages Count ---
+    unread_messages = Message.query.filter_by(receiver_id=current_user.id, read=False).count()
+
     # --- Example placeholders for events and news ---
     events = [
         {"title": "Group Study Session", "date": "Nov 5, 2025"},

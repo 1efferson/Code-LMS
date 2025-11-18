@@ -5,14 +5,15 @@ from flask_login import login_required, current_user
 from lms import db
 from lms.models.course import Course
 from lms.models.enrollment import Enrollment
-from . import courses 
+from lms.models.message import Message
+from . import courses
 from lms.models.module import Module
 from lms.models.lesson import Lesson
-from lms.models.lesson_completion import LessonCompletion 
+from lms.models.lesson_completion import LessonCompletion
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select
 from datetime import datetime
-import json # <--- ADDED: Import json module
+import json
 
 # -------------------------------
 #  Course Catalog
@@ -224,6 +225,34 @@ def mark_lesson_complete(lesson_slug):
         course_slug=lesson.module.course.slug,
         lesson_slug=lesson.slug
     ))
+
+# -------------------------------
+#  Course Chat
+# -------------------------------
+@courses.route('/<course_slug>/chat')
+@login_required
+def course_chat(course_slug):
+    course = Course.query.filter_by(slug=course_slug, published=True).first_or_404()
+
+    # Check if user is enrolled or is the instructor
+    enrollment = Enrollment.query.filter_by(user_id=current_user.id, course_id=course.id).first()
+    if not enrollment and course.instructor_id != current_user.id:
+        flash('You must be enrolled in this course or be the instructor to access the chat.', 'warning')
+        return redirect(url_for('courses.course_detail', slug=course_slug))
+
+    # Get messages for the current user (including private messages)
+    messages = Message.query.filter(
+        Message.course_id == course.id,
+        ((Message.sender_id == current_user.id) | (Message.receiver_id == current_user.id))
+    ).order_by(Message.timestamp).all()
+
+    # Mark messages as read for the current user
+    unread_messages = Message.query.filter_by(course_id=course.id, receiver_id=current_user.id, read=False).all()
+    for msg in unread_messages:
+        msg.read = True
+    db.session.commit()
+
+    return render_template('courses/chat.html', course=course, messages=messages)
 
 
 # -------------------------------

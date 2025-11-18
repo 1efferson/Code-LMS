@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Chat - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Chat: {{ course.title }}</h1>
+
+    {% if private_student %}
+        <p class="text-lg text-gray-600 mb-4">Private conversation with {{ private_student.name }}</p>
+    {% endif %}
+
+    <div class="bg-white shadow-lg rounded-xl p-6">
+        <div id="chat-messages" class="h-96 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+            {% for message in messages %}
+                {% if not private_student or (message.sender_id == current_user.id or message.receiver_id == current_user.id) %}
+                    <div class="mb-4 p-3 rounded-lg {% if message.sender_id == current_user.id %}bg-blue-100 ml-12{% else %}bg-white mr-12{% endif %}">
+                        <div class="font-semibold text-gray-800">{{ message.sender.name }}</div>
+                        <div class="text-gray-700">{{ message.content }}</div>
+                        <div class="text-xs text-gray-500 mt-1">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <form id="chat-form" class="flex gap-2">
+            <input type="text" id="message-input" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-200">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    const courseId = {{ course.id | tojson }};
+    const userId = {{ current_user.id | tojson }};
+    const privateStudentId = {{ private_student.id | tojson if private_student else 'null' }};
+
+    socket.on('connect', function() {
+        if (privateStudentId !== null) {
+            socket.emit('join_course_chat', { course_id: courseId, receiver_id: privateStudentId });
+        } else {
+            socket.emit('join_course_chat', { course_id: courseId });
+        }
+    });
+
+    socket.on('new_message', function(data) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'mb-4 p-3 rounded-lg bg-white mr-12';
+        messageDiv.innerHTML = `
+            <div class="font-semibold text-gray-800">${data.sender_name}</div>
+            <div class="text-gray-700">${data.content}</div>
+            <div class="text-xs text-gray-500 mt-1">${new Date().toLocaleString()}</div>
+        `;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        const content = input.value.trim();
+        if (content) {
+            if (privateStudentId !== null) {
+                socket.emit('send_message', { course_id: courseId, content: content, receiver_id: privateStudentId });
+            } else {
+                socket.emit('send_message', { course_id: courseId, content: content });
+            }
+            input.value = '';
+        }
+    });
+</script>
+{% endblock %}
