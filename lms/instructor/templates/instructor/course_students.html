@@ -51,6 +51,7 @@
                         <span class="font-medium text-white/90">Last Active:</span> 
                         <span class="text-xs bg-white/20 px-2 py-0.5 rounded">{{ student.last_active }}</span>
                     </p>
+                    <a href="{{ url_for('instructor.private_chat', course_id=course.id, student_id=student.id) }}" class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition duration-200">Chat</a>
                 </div>
 
             </div>

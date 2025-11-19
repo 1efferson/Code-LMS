@@ -48,6 +48,7 @@ def course_students(course_id):
         last_active = time_ago_in_words(latest_completion.completed_at) if latest_completion else "New user"
 
         students_data.append({
+            "id": student.id,
             "name": student.name,
             "email": student.email,
             "courses_enrolled": courses_enrolled,
@@ -66,19 +67,18 @@ def course_students(course_id):
 @instructor.route('/course/<int:course_id>/chat')
 @login_required
 def course_chat(course_id):
+    """View public course chat (all messages for the course)."""
     course = Course.query.get_or_404(course_id)
 
     # Ensure instructor owns the course
     if course.instructor_id != current_user.id:
         abort(403)
 
-    # Get all messages for this course
+    # Get all messages for this course (public + private where instructor is sender or receiver)
     messages = Message.query.filter_by(course_id=course_id).order_by(Message.timestamp).all()
 
-    # Mark messages as read for the instructor
-    unread_messages = Message.query.filter_by(course_id=course_id, receiver_id=current_user.id, read=False).all()
-    for msg in unread_messages:
-        msg.read = True
+    # Mark unread messages for this instructor as read
+    Message.query.filter_by(course_id=course_id, receiver_id=current_user.id, read=False).update({'read': True})
     db.session.commit()
 
     return render_template('instructor/chat.html', course=course, messages=messages)
@@ -87,6 +87,7 @@ def course_chat(course_id):
 @instructor.route('/course/<int:course_id>/chat/<int:student_id>')
 @login_required
 def private_chat(course_id, student_id):
+    """View private chat between instructor and a specific student."""
     course = Course.query.get_or_404(course_id)
 
     # Ensure instructor owns the course
@@ -97,7 +98,6 @@ def private_chat(course_id, student_id):
     enrollment = Enrollment.query.filter_by(user_id=student_id, course_id=course_id).first()
     if not enrollment:
         abort(404)
-
     student = enrollment.user
 
     # Get private messages between instructor and this student for this course
@@ -107,12 +107,13 @@ def private_chat(course_id, student_id):
         ((Message.sender_id == student_id) & (Message.receiver_id == current_user.id))
     ).order_by(Message.timestamp).all()
 
-    # Mark messages as read
-    unread_messages = Message.query.filter_by(course_id=course_id, receiver_id=current_user.id, read=False).all()
-    for msg in unread_messages:
-        msg.read = True
+    # Mark unread messages as read
+    Message.query.filter_by(course_id=course_id, receiver_id=current_user.id, read=False).update({'read': True})
     db.session.commit()
 
-    return render_template('instructor/chat.html', course=course, messages=messages, private_student=student)
-
-
+    return render_template(
+        'instructor/chat.html',
+        course=course,
+        messages=messages,
+        private_student=student
+    )

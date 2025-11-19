@@ -8,11 +8,18 @@
     <div class="bg-white shadow-lg rounded-xl p-6">
         <div id="chat-messages" class="h-96 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
             {% for message in messages %}
-                <div class="mb-4 p-3 rounded-lg {% if message.sender_id == current_user.id %}bg-blue-100 ml-12{% else %}bg-white mr-12{% endif %}">
-                    <div class="font-semibold text-gray-800">{{ message.sender.name }}</div>
-                    <div class="text-gray-700">{{ message.content }}</div>
-                    <div class="text-xs text-gray-500 mt-1">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-                </div>
+                {% if message.sender_id == current_user.id or message.receiver_id == current_user.id or message.receiver_id == course.instructor_id %}
+                    <div class="mb-4 p-3 rounded-lg {% if message.sender_id == current_user.id %}bg-blue-100 ml-12{% else %}bg-white mr-12{% endif %}">
+                        <div class="font-semibold text-gray-800">{{ message.sender.name }}</div>
+                        <div class="text-gray-700">{{ message.content }}</div>
+
+                        {% if message.receiver_id and message.receiver_id != course.instructor_id and message.receiver_id != current_user.id %}
+                            <div class="text-xs text-red-500 mt-1">Private to {{ message.receiver.name }}</div>
+                        {% endif %}
+
+                        <div class="text-xs text-gray-500 mt-1">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
 
@@ -25,35 +32,46 @@
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
-    const socket = io();
-    const courseId = {{ course.id | tojson }};
-    const userId = {{ current_user.id | tojson }};
+const socket = io(window.location.origin);
+const courseId = {{ course.id | tojson }};
+const userId = {{ current_user.id | tojson }};
 
-    socket.on('connect', function() {
-        socket.emit('join_course_chat', { course_id: courseId });
-    });
+const messagesDiv = document.getElementById('chat-messages');
+const input = document.getElementById('message-input');
 
-    socket.on('new_message', function(data) {
-        const messagesDiv = document.getElementById('chat-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'mb-4 p-3 rounded-lg bg-white mr-12';
-        messageDiv.innerHTML = `
-            <div class="font-semibold text-gray-800">${data.sender_name}</div>
-            <div class="text-gray-700">${data.content}</div>
-            <div class="text-xs text-gray-500 mt-1">${new Date().toLocaleString()}</div>
-        `;
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
+// Join course chat room on connect
+socket.on('connect', () => {
+    socket.emit('join_course_chat', { course_id: courseId });
+});
 
-    document.getElementById('chat-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const input = document.getElementById('message-input');
-        const content = input.value.trim();
-        if (content) {
-            socket.emit('send_message', { course_id: courseId, content: content });
-            input.value = '';
-        }
+// Listen for new messages
+socket.on('new_message', (data) => {
+    // Ignore irrelevant private messages
+    if (data.receiver_id && data.receiver_id !== userId && data.sender_id !== userId) return;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `mb-4 p-3 rounded-lg ${data.sender_id === userId ? 'bg-blue-100 ml-12' : 'bg-white mr-12'}`;
+    messageDiv.innerHTML = `
+        <div class="font-semibold text-gray-800">${data.sender_name}</div>
+        <div class="text-gray-700">${data.content}</div>
+        ${data.private && data.receiver_id !== userId ? `<div class="text-xs text-red-500 mt-1">Private to ${data.receiver_name || 'Student'}</div>` : ''}
+        <div class="text-xs text-gray-500 mt-1">${new Date(data.timestamp).toLocaleString()}</div>
+    `;
+    messagesDiv.appendChild(messageDiv);
+    setTimeout(() => messagesDiv.scrollTop = messagesDiv.scrollHeight, 50);
+});
+
+// Send message
+document.getElementById('chat-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const content = input.value.trim();
+    if (!content) return;
+
+    input.disabled = true;
+    socket.emit('send_message', { course_id: courseId, content: content }, () => {
+        input.disabled = false;
+        input.value = '';
     });
+});
 </script>
 {% endblock %}

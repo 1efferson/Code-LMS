@@ -27,11 +27,13 @@ def handle_join_course_chat(data):
         join_room(f'course_{course_id}')
     emit('joined', {'message': f'Joined chat for {course.title}'})
 
+
 @socketio.on('leave_course_chat')
 def handle_leave_course_chat(data):
     course_id = data['course_id']
     leave_room(f'course_{course_id}')
     emit('left', {'message': f'Left chat for course {course_id}'})
+
 
 @socketio.on('send_message')
 def handle_send_message(data):
@@ -51,14 +53,12 @@ def handle_send_message(data):
         emit('error', {'message': 'Permission denied'})
         return
 
-    # Determine receiver: if sender is instructor, send to all enrolled students; if student, send to instructor
-    if current_user.id == course.instructor_id:
-        # Instructor sending to students - for simplicity, send to all enrolled (or handle individually)
-        # For now, assume instructor sends to all, but in UI, they can select recipient
-        # For this implementation, instructor messages are broadcast to all students
+    # Determine receivers
+    if 'receiver_id' in data:
+        receivers = [data['receiver_id']]
+    elif current_user.id == course.instructor_id:
         receivers = [e.user_id for e in course.enrollments]
     else:
-        # Student sending to instructor
         receivers = [course.instructor_id]
 
     for receiver_id in receivers:
@@ -74,10 +74,10 @@ def handle_send_message(data):
 
     db.session.commit()
 
-    # Emit to room
+    # Emit to general room always
     emit('new_message', {
         'sender_name': current_user.name,
         'content': content,
-        'timestamp': message.timestamp.isoformat(),
+        'timestamp': datetime.datetime.utcnow().isoformat(),
         'course_id': course_id
     }, room=f'course_{course_id}')
