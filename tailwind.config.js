@@ -1,18 +1,15 @@
-// ...existing code...
-export const content = [
-    './lms/**/*.html',
-    './lms/**/**/*.html',
-    './**/*.py',
-    './templates/**/*.html',
-    // add paths that match your template locations
-];
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class", // <-- enables class-based dark mode
+
   content: [
+    "./lms/**/*.html",
+    "./lms/**/**/*.html",
     "./templates/**/*.html",
     "./static/**/*.js",
+    "./**/*.py",
   ],
+
   theme: {
     extend: {
       fontFamily: {
@@ -20,5 +17,6 @@ module.exports = {
       },
     },
   },
+
   plugins: [],
-}
+};
