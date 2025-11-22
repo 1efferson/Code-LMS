@@ -3,6 +3,9 @@ Code-LMS/
 ├── app.py
 ├── config.py
 ├── .env
+├── docker-compose.yml
+├──Dockerfile
+├──.dockerignore
 ├── .flaskenv
 ├── .gitignore
 ├── README.md
@@ -13,84 +16,110 @@ Code-LMS/
 ├── project_layout
 │
 ├── instance/
-│   └── lms.db
-│
-├── migrations/
+│   ├── lms.db
+│   
 │
 ├── lms/
 │   ├── __init__.py
 │   ├── extensions.py
-│   ├── commands.py
 │   ├── utils.py
+│   ├── commands.py
+│   ├── .DS_Store
 │   │
-│   ├── models/
-│   │   ├── course.py
-│   │   ├── user.py
-│   │   ├── enrollment.py
-│   │   ├── lesson_completion.py
-│   │   ├── lesson.py
-│   │   └── module.py
-│   │
-│   ├── static/
-│   │   ├── css/
-│   │   │   ├── dashboard.css
-│   │   │   ├── input.css
-│   │   │   └── output.css
-│   │   ├── js/
-│   │   │   └── dashboard.js
-│   │   └── images/
+│   ├── admin/
+│   │   ├── __init__.py
+│   │   ├── forms.py
+│   │   ├── routes.py
+│   │   ├── .DS_Store
+│   │   └── templates/admin/
+│   │       ├── add_course.html
+│   │       ├── admin_base.html
+│   │       ├── admin_course_outline.html
+│   │       ├── edit_course.html
+│   │       ├── edit_lesson.html
+│   │       ├── edit_module.html
+│   │       ├── manage_courses.html
+│   │       └── manage_users.html
 │   │
 │   ├── auth/
 │   │   ├── __init__.py
 │   │   ├── routes.py
 │   │   ├── forms.py
-│   │   └── templates/
-│   │       └── auth/
-│   │           ├── login.html
-│   │           ├── reset_password.html
-│   │           ├── forgot_password.html
-│   │           └── register.html
-│   │
-│   ├── admin/
-│   │   ├── __init__.py
-│   │   ├── routes.py
-│   │   ├── forms.py
-│   │   └── templates/
-│   │       └── admin/
-│   │           ├── admin_base.html
-│   │           ├── add_course.html
-│   │           ├── edit_course.html
-│   │           ├── edit_lesson.html
-│   │           ├── edit_module.html
-│   │           ├── manage_courses.html
-│   │           └── admin_course_outline.html
+│   │   └── templates/auth/
+│   │       ├── login.html
+│   │       ├── register.html
+│   │       ├── forgot_password.html
+│   │       └── reset_password.html
 │   │
 │   ├── courses/
 │   │   ├── __init__.py
 │   │   ├── routes.py
 │   │   ├── static/
-│   │   │   └── css/
-│   │   │       └── course_catalog.css
-│   │   └── templates/
-│   │       └── courses/
-│   │           ├── course_details.html
-│   │           ├── course_lesson.html
-│   │           └── course_catalog.html
+│   │   │   ├── css/course_catalog.css
+│   │   │   └── lottie/streak.json
+│   │   └── templates/courses/
+│   │       ├── courses_catalog.html
+│   │       ├── course_details.html
+│   │       └── course_lesson.html
+│   │
+│   ├── errors/
+│   │   ├── __init__.py
+│   │   └── handlers.py
+│   │
+│   ├── instructor/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   └── templates/instructor/
+│   │       ├── course_students.html
+│   │       └── dashboard.html
 │   │
 │   ├── main/
 │   │   ├── __init__.py
 │   │   ├── routes.py
+│   │   ├── .DS_Store
 │   │   ├── static/
-│   │   │   └── css/
-│   │   │       ├── loader.css
-│   │   │       └── dashboard.css
-│   │   └── templates/
-│   │       └── main/
-│   │           ├── home.html
-│   │           ├── dashboard.html
-│   │           └── profile.html
+│   │   │   ├── css/dashboard.css
+│   │   │   ├── css/loader.css
+│   │   │   └── images/coding-background.jpg
+│   │   └── templates/main/
+│   │       ├── home.html
+│   │       ├── dashboard.html
+│   │       └── profile.html
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── course.py
+│   │   ├── module.py
+│   │   ├── lesson.py
+│   │   ├── lesson_completion.py
+│   │   └── enrollment.py
+│   │
+│   ├── static/
+│   │   ├── css/ (input.css, output.css)
+│   │   ├── images/ (icons, logos, svgs)
+│   │   └── js/ (dashboard.js, profile.js, etc.)
 │   │
 │   └── templates/
-│       └── base.html
+│       ├── base.html
+│       ├── errors/
+│       │   ├── 403.html
+│       │   ├── 404.html
+│       │   ├── 500.html
+│       │   └── csrf_error.html
+│       └── partials/
+│           └── doodles/
+│               ├── 403.svg
+│               ├── 404.svg
+│               ├── 500.svg
+│               └── timeout.svg
+│
+├── migrations/
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions/
+│      
 │
 └── venv/
