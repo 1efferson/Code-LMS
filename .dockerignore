@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -5,11 +6,22 @@ __pycache__/
 *.db
 instance/
 .venv/
+
+# Environment / secrets
 .env
+.env.*
+
+# Git
 .git
 .gitignore
-migrations/
+
+# Frontend
 node_modules/
 package-lock.json
 package.json
+
+# Logs
 *.log
+
+# Docker / OS noise
+.DS_Store

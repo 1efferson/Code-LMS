@@ -1,7 +1,8 @@
 # lms/__init__.py
 
 from flask import Flask
-from .extensions import db, login_manager, csrf, bcrypt, migrate,cache
+from .extensions import db, login_manager, csrf, bcrypt, migrate
+# cache
 from flask_mail import Mail
 import logging
 from flask import render_template
@@ -62,7 +63,7 @@ def create_app(config_object='config.Config'):
     csrf.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)  
-    cache.init_app(app) 
+    # cache.init_app(app) 
     
     # Flask-Login config
     login_manager.login_view = 'auth.login'

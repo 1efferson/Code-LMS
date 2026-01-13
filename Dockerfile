@@ -1,32 +1,43 @@
-# Use a lightweight Python base image
+# ---------- Stage 1: Build Tailwind CSS ----------
+FROM node:20-slim AS css-builder
+
+WORKDIR /build
+
+# Copy Tailwind input CSS
+COPY lms/static/css/input.css lms/static/css/input.css
+
+# Copy entire lms folder (templates, JS, CSS, etc.)
+COPY lms/ lms/
+
+# Copy Tailwind config
+COPY tailwind.config.js ./
+
+# Install Tailwind CLI
+RUN npm install -D tailwindcss @tailwindcss/cli
+
+# Build minified Tailwind CSS
+RUN npx tailwindcss -i lms/static/css/input.css -o lms/static/css/output.css --minify
+
+
+# ---------- Stage 2: Python application ----------
 FROM python:3.13-slim
 
-# Avoid Python writing .pyc files and ensure output is logged straight
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Set working directory
 WORKDIR /app
 
-# Install Node so Tailwind CLI can run
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean
-
-# Install Python dependencies first (caching optimization)
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy project files
+# Copy the rest of the application
 COPY . .
 
-# Install Tailwind CLI and build CSS
-RUN npm install -D tailwindcss @tailwindcss/cli
-RUN npx @tailwindcss/cli -i lms/static/css/input.css -o lms/static/css/output.css --minify
+# Copy the compiled Tailwind CSS from build stage
+COPY --from=css-builder /build/lms/static/css/output.css lms/static/css/output.css
 
-# Expose port
 EXPOSE 5000
 
-# Start Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "lms:create_app()"]
+# Run the app with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--workers", "3", "lms:create_app()"]

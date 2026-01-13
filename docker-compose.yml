@@ -1,12 +1,13 @@
+
+
 services:
   web:
-    build: .
+    image: codelms:latest
     container_name: codelms
+    build: .
     ports:
       - "8000:5000"
     env_file:
       - .env.production
-    command: gunicorn -b 0.0.0.0:5000 "lms:create_app()"
-    volumes:
-      - .:/app       # Mount current folder to /app in container
-    working_dir: /app  # Set working directory
+    command: gunicorn -b 0.0.0.0:5000 --workers 3 "lms:create_app()"
+    restart: unless-stopped
