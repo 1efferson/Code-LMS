@@ -3,52 +3,103 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="flex min-h-[calc(100vh-64px)] bg-gray-50">
+<div class="flex min-h-[calc(100vh-64px)] bg-gray-100 dark:bg-gray-950">
+
+    
+    <!-- Mobile Sidebar Toggle Button (visible only on mobile) -->
+    <button id="sidebar-toggle" 
+            class="md:hidden fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-label="Toggle sidebar menu"
+            aria-expanded="false">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Overlay for mobile (when sidebar is open) -->
+    <div id="sidebar-overlay" 
+         class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden transition-opacity duration-300"
+         aria-hidden="true"></div>
     
     <!-- Sidebar (Visible only to Admin) -->
-    <aside class="w-64 bg-gray-800 text-white shadow-xl flex-shrink-0">
-        <div class="p-6 text-2xl font-bold border-b border-gray-700">
-            LMS Admin
+    <aside id="admin-sidebar" 
+           class="w-64 bg-gray-800 text-white shadow-xl flex-shrink-0 
+                  fixed md:static inset-y-0 left-0 z-40
+                  transform -translate-x-full md:translate-x-0
+                  transition-transform duration-300 ease-in-out
+                  overflow-y-auto">
+        
+        <!-- Sidebar Header -->
+        <div class="p-6 text-2xl font-bold border-b border-gray-700 flex justify-between items-center">
+            <span>LMS Admin</span>
+            <!-- Close button (visible only on mobile) -->
+            <button id="sidebar-close" 
+                    class="md:hidden text-gray-400 hover:text-white focus:outline-none"
+                    aria-label="Close sidebar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
         
-        <nav class="mt-6 space-y-2 px-4">
+        <nav class="mt-6 space-y-2 px-4 pb-6">
             <!-- Dashboard Home Link -->
             {% set course_management_routes = ['admin.manage_courses', 'admin.manage_course_outline', 'admin.edit_course', 'admin.edit_module', 'admin.edit_lesson'] %}
             
             <a href="{{ url_for('admin.manage_courses') }}" 
                class="flex items-center p-3 rounded-lg text-lg font-medium transition duration-150 hover:bg-gray-700 
                {% if request.endpoint in course_management_routes or request.endpoint == 'admin.admin_index' %}bg-blue-600 text-white shadow-md{% else %}text-gray-300{% endif %}">
-               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-2 2h-2m2 0h-2"></path></svg>
-               Manage Courses
+               <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-2 2h-2m2 0h-2"></path>
+               </svg>
+               <span>Manage Courses</span>
             </a>
             
             <!-- Add Course Link -->
             <a href="{{ url_for('admin.add_course') }}" 
                class="flex items-center p-3 rounded-lg text-lg font-medium transition duration-150 hover:bg-gray-700 
                {% if request.endpoint == 'admin.add_course' %}bg-blue-600 text-white shadow-md{% else %}text-gray-300{% endif %}">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-               Add New Course
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Add New Course</span>
             </a>
-             <!-- manage_users Link -->
+            
+            <!-- Manage Users Link -->
             <a href="{{ url_for('admin.manage_users') }}" 
                 class="flex items-center p-3 rounded-lg text-lg font-medium transition duration-150 hover:bg-gray-700 
                 {% if request.endpoint == 'admin.manage_users' %}bg-blue-600 text-white shadow-md{% else %}text-gray-300{% endif %}">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-3-3h-4a3 3 0 00-3 3v2h5zM6 20h5v-2a3 3 0 00-3-3H4a3 3 0 00-3 3v2h5zM7 10a3 3 0 110-6 3 3 0 010 6zm10 0a3 3 0 110-6 3 3 0 010 6z"></path></svg>
-                Manage Users
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-3-3h-4a3 3 0 00-3 3v2h5zM6 20h5v-2a3 3 0 00-3-3H4a3 3 0 00-3 3v2h5zM7 10a3 3 0 110-6 3 3 0 010 6zm10 0a3 3 0 110-6 3 3 0 010 6z"></path>
+                </svg>
+                <span>Manage Users</span>
             </a>
 
-            
-            <!-- Placeholder for Settings/Users (Future Feature) -->
+            <!-- Section Divider -->
             <div class="text-sm pt-4 text-gray-500 uppercase border-t border-gray-700 mx-3">Other Tools</div>
+            
+            <!-- Settings Link (Coming Soon) -->
             <a href="#" class="flex items-center p-3 rounded-lg text-lg font-medium text-gray-400 transition duration-150 hover:bg-gray-700">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.245.548 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Settings (Coming Soon)
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.245.548 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span>Settings (Coming Soon)</span>
+            </a>
+
+            <!-- Back to Main Site Link -->
+            <a href="{{ url_for('main.home') }}" 
+               class="flex items-center p-3 rounded-lg text-lg font-medium text-gray-300 transition duration-150 hover:bg-gray-700 mt-4">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                <!-- <span>Back to Site</span> -->
             </a>
         </nav>
     </aside>
     
     <!-- Main Content Area -->
-    <main class="flex-grow p-8">
+    <main class="flex-grow p-4 md:p-8 w-full md:w-auto">
         <div class="w-full">
             {% block admin_content %}
                 <!-- Child templates will populate this block -->
@@ -56,4 +107,79 @@
         </div>
     </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('admin-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    // Function to open sidebar
+    function openSidebar() {
+        sidebar.classList.remove('-translate-x-full');
+        sidebarOverlay.classList.remove('hidden');
+        sidebarToggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when sidebar is open
+    }
+
+    // Function to close sidebar
+    function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('hidden');
+        sidebarToggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Toggle sidebar on button click
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            const isExpanded = sidebarToggle.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    // Close sidebar when clicking close button
+    if (sidebarClose) {
+        sidebarClose.addEventListener('click', closeSidebar);
+    }
+
+    // Close sidebar when clicking overlay
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+
+    // Close sidebar when clicking a link (mobile only)
+    const sidebarLinks = sidebar.querySelectorAll('a');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth < 768) { // md breakpoint
+                closeSidebar();
+            }
+        });
+    });
+
+    // Handle window resize - close sidebar if resizing to desktop
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (window.innerWidth >= 768) { // md breakpoint
+                closeSidebar();
+            }
+        }, 250);
+    });
+
+    // Handle escape key to close sidebar
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+            closeSidebar();
+        }
+    });
+});
+</script>
 {% endblock %}

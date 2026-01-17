@@ -3,12 +3,12 @@
 
 {% block admin_content %}
 <!---- Page title and short description ---->
-<h1 class="text-4xl font-bold mb-6 text-gray-800">Manage Outline: {{ course.title }}</h1>
-<p class="text-lg text-gray-600 mb-8">Build the sequential structure (Modules) and content (Lessons) for this course.</p>
+<h1 class="text-4xl font-bold mb-6 text-gray-800 dark:text-gray-100">Manage Outline: {{ course.title }}</h1>
+<p class="text-lg text-gray-600 dark:text-gray-400 mb-8">Build the sequential structure (Modules) and content (Lessons) for this course.</p>
 
 <!---- Section for adding a new module ---->
-<div class="bg-white p-6 rounded-xl shadow-lg mb-10 border border-blue-200">
-    <h2 class="text-2xl font-semibold mb-4 text-blue-700">Add New Module (Chapter)</h2>
+<div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg mb-10 border border-blue-200 dark:border-blue-800 transition-colors">
+    <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-400">Add New Module (Chapter)</h2>
     
     <!---- Form to create a new module ---->
     <form method="POST" action="{{ url_for('admin.add_module', course_id=course.id) }}" class="space-y-4 max-w-lg">
@@ -18,82 +18,82 @@
 
         <!---- Input for module title ---->
         <div>
-            {{ module_form.title.label(class="block text-sm font-medium text-gray-700") }}
-            {{ module_form.title(class="w-full px-3 py-2 border rounded-lg", placeholder="e.g., Introduction to Python Basics") }}
+            {{ module_form.title.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+            {{ module_form.title(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", placeholder="e.g., Introduction to Python Basics") }}
             <!---- Show any validation errors for title ---->
-            {% for error in module_form.title.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+            {% for error in module_form.title.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
         </div>
 
         <!---- Input for module order number ---->
         <div>
-            {{ module_form.order.label(class="block text-sm font-medium text-gray-700") }}
-            {{ module_form.order(class="w-full px-3 py-2 border rounded-lg", value=course.modules.count() + 1) }}
+            {{ module_form.order.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+            {{ module_form.order(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", value=course.modules.count() + 1) }}
             <!---- Show any validation errors for order ---->
-            {% for error in module_form.order.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+            {% for error in module_form.order.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
         </div>
         
         <!---- Button to create module ---->
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition duration-150">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-150">
             Create Module
         </button>
     </form>
 </div>
 
 <!---- Section displaying existing modules and lessons ---->
-<h2 class="text-2xl font-semibold mb-6 text-gray-800">Existing Course Outline</h2>
+<h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Existing Course Outline</h2>
 
 {% if course.modules.count() > 0 %}
     <!---- Loop through all modules in the course ---->
     <div class="space-y-8">
         {% for module in course.modules.all()|sort(attribute='order') %}
-        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 transition-colors">
             
             <!---- Header showing module title, order, and action buttons ---->
-            <div class="flex justify-between items-start mb-4 border-b pb-3">
-                <h3 class="text-xl font-bold text-gray-900">
-                    <span class="text-blue-500 mr-2">{{ module.order }}.</span> {{ module.title }}
-                    <span class="text-sm font-normal text-gray-500 ml-3">({{ module.lessons.count() }} Lessons)</span>
+            <div class="flex justify-between items-start mb-4 border-b border-gray-200 dark:border-gray-800 pb-3">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    <span class="text-blue-500 dark:text-blue-400 mr-2">{{ module.order }}.</span> {{ module.title }}
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-3">({{ module.lessons.count() }} Lessons)</span>
                 </h3>
                 <div class="space-x-3">
                     <!---- Edit module link ---->
-                    <a href="{{ url_for('admin.edit_module', module_id=module.id, course_id=course.id) }}" class="text-sm text-indigo-600 hover:text-indigo-900">Edit</a>
+                    <a href="{{ url_for('admin.edit_module', module_id=module.id, course_id=course.id) }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors">Edit</a>
                     
                     <!---- Delete module form (includes confirmation) ---->
                     <form method="POST" action="{{ url_for('admin.delete_module', module_id=module.id, course_id=course.id) }}" class="inline" onsubmit="return confirm('WARNING: Deleting this module will delete all associated lessons. Are you sure?')">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="text-sm text-red-600 hover:text-red-900">Delete</button>
+                        <button type="submit" class="text-sm text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors">Delete</button>
                     </form>
                 </div>
             </div>
 
             <!---- List of lessons inside the current module ---->
-            <ul class="divide-y divide-gray-100 mb-4">
+            <ul class="divide-y divide-gray-100 dark:divide-gray-800 mb-4">
                 {% for lesson in module.lessons.all()|sort(attribute='order') %}
-                <li class="flex justify-between items-center py-3 text-gray-700 hover:bg-gray-50 px-2 rounded">
+                <li class="flex justify-between items-center py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-2 rounded transition-colors">
                     <!---- Lesson title and duration ---->
                     <span class="font-medium text-sm">
-                        <span class="text-gray-400 mr-2">{{ lesson.order }}.</span> {{ lesson.title }}
-                        <span class="text-xs text-gray-500 ml-2">({{ lesson.duration or 'No Duration' }})</span>
+                        <span class="text-gray-400 dark:text-gray-500 mr-2">{{ lesson.order }}.</span> {{ lesson.title }}
+                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">({{ lesson.duration or 'No Duration' }})</span>
                     </span>
                     <!---- Lesson action buttons ---->
                     <div class="space-x-3 text-sm">
-                        <a href="{{ url_for('admin.edit_lesson', lesson_id=lesson.id, course_id=course.id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <a href="{{ url_for('admin.edit_lesson', lesson_id=lesson.id, course_id=course.id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors">Edit</a>
                         
                         <!---- Delete lesson form ---->
                         <form method="POST" action="{{ url_for('admin.delete_lesson', lesson_id=lesson.id, course_id=course.id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this lesson?')">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                            <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors">Delete</button>
                         </form>
                     </div>
                 </li>
                 {% else %}
                     <!---- Message shown when no lessons exist in a module ---->
-                    <li class="py-3 text-gray-500 text-sm italic">No lessons in this module yet.</li>
+                    <li class="py-3 text-gray-500 dark:text-gray-400 text-sm italic">No lessons in this module yet.</li>
                 {% endfor %}
             </ul>
             
             <!---- Button to toggle visibility of the lesson creation form ---->
-            <button id="toggle-lesson-{{ module.id }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm mt-3 flex items-center">
+            <button id="toggle-lesson-{{ module.id }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm mt-3 flex items-center transition-colors">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -101,8 +101,8 @@
             </button>
 
             <!---- Hidden lesson form (revealed when the toggle button is clicked) ---->
-            <div id="lesson-form-{{ module.id }}" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200" style="display:none;">
-                <h4 class="text-lg font-semibold mb-3 text-gray-800">New Lesson Details</h4>
+            <div id="lesson-form-{{ module.id }}" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors" style="display:none;">
+                <h4 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">New Lesson Details</h4>
 
                 <!---- Form to add a new lesson under the selected module ---->
                 <form method="POST" action="{{ url_for('admin.add_lesson', module_id=module.id) }}" class="space-y-3">
@@ -112,40 +112,40 @@
                     <!---- Lesson title and duration fields ---->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            {{ lesson_form.title.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ lesson_form.title(class="w-full px-3 py-2 border rounded-lg", placeholder="Lesson Title") }}
-                            {% for error in lesson_form.title.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+                            {{ lesson_form.title.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+                            {{ lesson_form.title(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", placeholder="Lesson Title") }}
+                            {% for error in lesson_form.title.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
                         </div>
                         <div>
-                            {{ lesson_form.duration.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ lesson_form.duration(class="w-full px-3 py-2 border rounded-lg", placeholder="e.g., 10:30 (from Lesson Model)") }}
-                            {% for error in lesson_form.duration.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+                            {{ lesson_form.duration.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+                            {{ lesson_form.duration(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", placeholder="e.g., 10:30 (from Lesson Model)") }}
+                            {% for error in lesson_form.duration.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
                         </div>
                     </div>
                     
                     <!---- Lesson video/content URL input ---->
                     <div>
-                        {{ lesson_form.content_url.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ lesson_form.content_url(class="w-full px-3 py-2 border rounded-lg", placeholder="YouTube/Vimeo Embed URL (from Lesson Model)") }}
-                        {% for error in lesson_form.content_url.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+                        {{ lesson_form.content_url.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+                        {{ lesson_form.content_url(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", placeholder="YouTube/Vimeo Embed URL (from Lesson Model)") }}
+                        {% for error in lesson_form.content_url.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
                     </div>
                     
                     <!---- Lesson description text area ---->
                     <div>
-                        {{ lesson_form.description.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ lesson_form.description(class="w-full px-3 py-2 border rounded-lg h-24 resize-none") }}
-                        {% for error in lesson_form.description.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+                        {{ lesson_form.description.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+                        {{ lesson_form.description(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 h-24 resize-none transition-colors") }}
+                        {% for error in lesson_form.description.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
                     </div>
                     
                     <!---- Input for lesson order number ---->
                     <div>
-                        {{ lesson_form.order.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ lesson_form.order(class="w-full px-3 py-2 border rounded-lg", value=module.lessons.count() + 1) }}
-                        {% for error in lesson_form.order.errors %}<p class="text-red-500 text-xs mt-1">{{ error }}</p>{% endfor %}
+                        {{ lesson_form.order.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
+                        {{ lesson_form.order(class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors", value=module.lessons.count() + 1) }}
+                        {% for error in lesson_form.order.errors %}<p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>{% endfor %}
                     </div>
                     
                     <!---- Button to submit the new lesson form ---->
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg transition duration-150">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-150">
                         Add Lesson
                     </button>
                 </form>
@@ -179,7 +179,7 @@
 
 {% else %}
     <!---- Message displayed when there are no modules yet ---->
-    <div class="text-center py-10 text-gray-500 bg-white rounded-xl shadow-md border border-gray-100">
+    <div class="text-center py-10 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 transition-colors">
         This course has no modules yet. Start by using the form above to create the first module.
     </div>
 {% endif %}

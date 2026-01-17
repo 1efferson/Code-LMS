@@ -2,127 +2,157 @@
 {% block title %}{{ course.title }} | LMS{% endblock %}
 
 {% block content %}
-<section class="max-w-6xl mx-auto px-6 py-12">
+<!-- Full-width background section with min-height to fill viewport -->
+<section class="w-full bg-gray-100 dark:bg-gray-950 transition-colors duration-300 py-12 min-h-[calc(100vh-theme(spacing.16)-theme(spacing.20))]">
 
-  <!-- Header -->
-  <div class="text-center mb-10">
-    <h1 class="text-4xl font-bold text-gray-900 mb-3">{{ course.title }}</h1>
-    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-      {{ course.description or "No description available for this course yet." }}
-    </p>
+  <!-- Centered container for content -->
+  <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
 
-    {% if course.instructor %}
-      <p class="text-sm text-gray-500 mt-2">
-        Taught by 
-        <span class="font-medium text-gray-800">
-          {{ course.instructor.name or course.instructor.email }}
-        </span>
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+        {{ course.title }}
+      </h1>
+
+      <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        {{ course.description or "No description available for this course yet." }}
       </p>
-    {% endif %}
-  </div>
 
-  <!-- Enrollment Card -->
-  <div class="flex justify-center mb-10">
-  <div class="bg-white border border-gray-100 shadow-md rounded-xl px-6 py-4 text-center w-auto">
-    {% if not is_enrolled %}
-      <form action="{{ url_for('courses.enroll', slug=course.slug) }}" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button
-          type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
-        >
-          Enroll Now
-        </button>
-      </form>
-    {% else %}
-      <a
-        href="{{ url_for('courses.course_lessons', slug=course.slug) }}"
-        class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
-      >
-        Go to Lessons
-      </a>
-    {% endif %}
-  </div>
-</div>
+      {% if course.instructor %}
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          Taught by
+          <span class="font-medium text-gray-800 dark:text-gray-200">
+            {{ course.instructor.name or course.instructor.email }}
+          </span>
+        </p>
+      {% endif %}
+    </div>
 
+    <!-- Enrollment Card -->
+    <div class="flex justify-center mb-10">
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md rounded-xl px-6 py-4 text-center w-auto transition-colors">
 
+        {% if not is_enrolled %}
+          <form action="{{ url_for('courses.enroll', slug=course.slug) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+            >
+              Enroll Now
+            </button>
+          </form>
+        {% else %}
+          <a
+            href="{{ url_for('courses.course_lessons', slug=course.slug) }}"
+            class="inline-block bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
+          >
+            Go to Lessons
+          </a>
+        {% endif %}
 
-  <!-- Course Outline (Timeline Style with Alpine.js Collapse) -->
-  <div class="mt-12">
-    <h2 class="text-3xl font-bold text-gray-800 mb-8 border-b pb-3">📚 Course Curriculum</h2>
-
-    {% if course.modules %}
-      <div class="relative pl-6 sm:pl-10">
-        <!-- Vertical Line Connector -->
-        <div class="absolute left-0 sm:left-4 top-0 bottom-0 w-1 bg-gray-200 rounded-full"></div>
-
-        {% for module in course.modules %}
-          <!-- x-data sets up the Alpine component: 'open' tracks the collapse state -->
-          <div class="mb-10 relative" x-data="{ open: true }">
-            
-            <!-- Icon for Module -->
-            <div class="absolute -left-6 sm:-left-6 top-0 h-full w-6 flex justify-center items-start z-10">
-                <div class="w-8 h-8 bg-blue-600 rounded-full shadow-lg flex items-center justify-center ring-4 ring-white">
-                    <!-- Icon for Module (e.g., Book or Folder) -->
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.5l8 4.5V20l-8-4.5-8 4.5V11l8-4.5zm0 0l-8-4.5m8 4.5V20"/></svg>
-                </div>
-            </div>
-
-            <!-- Module Card -->
-            <div class="ml-4 sm:ml-8 bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden">
-                
-                <!-- Module Title (Clickable/Toggle Header) -->
-                <!-- x-on:click toggles the 'open' state -->
-                <div class="flex justify-between items-center p-4 hover:bg-gray-50 transition duration-150 border-b cursor-pointer" @click="open = !open">
-                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-3">
-                        <!-- Icon to show collapse state -->
-                        <svg class="w-5 h-5 text-gray-500 transform transition duration-300" 
-                            :class="{ 'rotate-90': open, 'rotate-0': !open }" 
-                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                        </svg>
-                        Module {{ loop.index }}: {{ module.title }}
-                    </h3>
-                    <span class="text-sm text-blue-600 font-medium">
-                        <!--  |list|length for SQLAlchemy query -->
-                        {{ module.lessons|list|length }} Lessons
-                    </span>
-                </div>
-
-                <!-- Lessons List -->
-                <!-- x-show collapses the list based on 'open' state -->
-                <ul class="divide-y divide-gray-100 bg-gray-50" x-show="open" x-collapse>
-                    {% for lesson in module.lessons %}
-                        <li class="flex justify-between items-center px-4 py-3 hover:bg-white transition duration-150">
-                            
-                            <!-- Lesson Content -->
-                            <div class="flex items-center gap-3">
-                                <!-- Lesson Icon (e.g., Play Button) -->
-                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-3.707-9.293a1 1 0 000 1.414L9.586 12l-3.293 3.293a1 1 0 001.414 1.414L11 13.414l3.293 3.293a1 1 0 001.414-1.414L12.414 12l3.293-3.293a1 1 0 00-1.414-1.414L11 10.586 7.707 7.293a1 1 0 00-1.414 0z" clip-rule="evenodd" /></svg>
-                                
-                                <p class="text-gray-800 font-medium">
-                                    {{ loop.index }}. {{ lesson.title }}
-                                    {% if is_enrolled %}
-                                        <!-- Corrected parameter names to course_slug and lesson_slug -->
-                                        <a href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=lesson.slug) }}" class="text-blue-500 hover:text-blue-700 text-sm ml-2 font-normal">(Start Lesson)</a>
-                                    {% endif %}
-                                </p>
-                            </div>
-                            
-                            <!-- Lesson Duration -->
-                            <span class="text-sm text-gray-500">{{ lesson.duration or "—" }}</span>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-          </div>
-        {% endfor %}
       </div>
-    {% else %}
-      <p class="text-gray-500">Modules for this course will appear here soon.</p>
-    {% endif %}
-  </div>
+    </div>
 
+    <!-- Course Outline -->
+    <div class="mt-12">
+      <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 border-b border-gray-200 dark:border-gray-800 pb-3">
+        📚 Course Curriculum
+      </h2>
+
+      {% if course.modules %}
+        <div class="relative pl-6 sm:pl-10">
+          <!-- Vertical Line -->
+          <div class="absolute left-0 sm:left-4 top-0 bottom-0 w-1 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+
+          {% for module in course.modules %}
+            <div class="mb-10 relative" x-data="{ open: true }">
+
+              <!-- Module Icon -->
+              <div class="absolute -left-6 sm:-left-6 top-0 h-full w-6 flex justify-center items-start z-10">
+                <div class="w-8 h-8 bg-blue-600 rounded-full shadow-lg flex items-center justify-center ring-4 ring-white dark:ring-gray-950">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 6.5l8 4.5V20l-8-4.5-8 4.5V11l8-4.5zm0 0l-8-4.5m8 4.5V20"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Module Card -->
+              <div class="ml-4 sm:ml-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-md overflow-hidden transition-colors">
+
+                <!-- Module Header -->
+                <div
+                  class="flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150 border-b border-gray-200 dark:border-gray-800 cursor-pointer"
+                  @click="open = !open"
+                >
+                  <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+                    <svg
+                      class="w-5 h-5 text-gray-500 dark:text-gray-400 transform transition duration-300"
+                      :class="{ 'rotate-90': open, 'rotate-0': !open }"
+                      fill="currentColor" viewBox="0 0 20 20"
+                    >
+                      <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd"/>
+                    </svg>
+                    Module {{ loop.index }}: {{ module.title }}
+                  </h3>
+
+                  <span class="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                    {{ module.lessons|list|length }} Lessons
+                  </span>
+                </div>
+
+                <!-- Lessons -->
+                <ul
+                  class="divide-y divide-gray-100 dark:divide-gray-800 bg-gray-50 dark:bg-gray-900"
+                  x-show="open"
+                  x-collapse
+                >
+                  {% for lesson in module.lessons %}
+                    <li class="flex justify-between items-center px-4 py-3 hover:bg-white dark:hover:bg-gray-800 transition duration-150">
+
+                      <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm-3.707-9.293a1 1 0 000 1.414L9.586 12l-3.293 3.293a1 1 0 001.414 1.414L11 13.414l3.293 3.293a1 1 0 001.414-1.414L12.414 12l3.293-3.293a1 1 0 00-1.414-1.414L11 10.586 7.707 7.293a1 1 0 00-1.414 0z"
+                            clip-rule="evenodd"/>
+                        </svg>
+
+                        <p class="text-gray-800 dark:text-gray-200 font-medium">
+                          {{ loop.index }}. {{ lesson.title }}
+                          {% if is_enrolled %}
+                            <a
+                              href="{{ url_for('courses.course_lesson', course_slug=course.slug, lesson_slug=lesson.slug) }}"
+                              class="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm ml-2 font-normal"
+                            >
+                              (Start Lesson)
+                            </a>
+                          {% endif %}
+                        </p>
+                      </div>
+
+                      <span class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ lesson.duration or "—" }}
+                      </span>
+                    </li>
+                  {% endfor %}
+                </ul>
+
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-500 dark:text-gray-400">
+          Modules for this course will appear here soon.
+        </p>
+      {% endif %}
+    </div>
+
+  </div> <!-- End container -->
 </section>
+
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 {% endblock %}
