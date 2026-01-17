@@ -1,74 +1,239 @@
 {% extends "admin/admin_base.html" %}
 
 {% block admin_content %}
-<h1 class="text-2xl font-semibold mb-4">Manage Users</h1>
+<div class="bg-gray-100 dark:bg-gray-950 min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+
+<h1 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+  Manage Users
+</h1>
 
 <!-- Search bar -->
-<form method="GET" action="{{ url_for('admin.manage_users') }}" class="mb-4 flex items-center gap-2 w-1/2">
-    <input type="text" name="q" value="{{ search_query or '' }}" 
-           placeholder="Search by name or email..." 
-           class="px-3 py-2 border rounded w-full text-sm">
-    <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center gap-1">
-        <i class="fas fa-search"></i> Search
+<form method="GET" action="{{ url_for('admin.manage_users') }}" class="mb-6">
+  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-2/3 lg:w-1/2">
+    <input
+      type="text"
+      name="q"
+      value="{{ search_query or '' }}"
+      placeholder="Search by name or email..."
+      class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg w-full text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+    <button
+      type="submit"
+      class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 whitespace-nowrap transition"
+    >
+      <i class="fas fa-search"></i>
+      <span>Search</span>
     </button>
+  </div>
 </form>
 
-<table class="w-full bg-white shadow rounded-lg overflow-hidden">
-    <thead>
-        <tr class="bg-gray-100 text-left border-b">
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3">Email</th>
-            <th class="px-4 py-3">Role</th>
-            <th class="px-4 py-3">Admin?</th>
-            <th class="px-4 py-3">Update</th>
-            <th class="px-4 py-3">Delete</th>
+<!-- DESKTOP TABLE VIEW -->
+<div class="hidden lg:block bg-white dark:bg-gray-900 shadow-xl rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-800 text-left border-b border-gray-200 dark:border-gray-700">
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Admin?</th>
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Update</th>
+          <th class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Delete</th>
         </tr>
-    </thead>
+      </thead>
 
-    <tbody>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
         {% for user in users %}
-        <tr class="border-b hover:bg-gray-50">
-            <td class="px-4 py-3">{{ user.name }}</td>
-            <td class="px-4 py-3">{{ user.email }}</td>
-            <td class="px-4 py-3 capitalize">{{ user.role }}</td>
-            <td class="px-4 py-3">
-                {% if user.is_admin %}
-                    <span class="text-green-600 font-medium text-sm">Yes</span>
-                {% else %}
-                    <span class="text-gray-500 text-sm">No</span>
-                {% endif %}
-            </td>
-            <td class="px-4 py-3">
-                <form action="{{ url_for('admin.update_user_role', user_id=user.id) }}" method="POST" class="flex items-center space-x-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <select name="role" class="border rounded px-2 py-1 text-sm">
-                        <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
-                        <option value="instructor" {% if user.role == 'instructor' %}selected{% endif %}>Instructor</option>
-                    </select>
-                    <label class="flex items-center space-x-1 text-sm">
-                        <input type="checkbox" name="is_admin" value="1" {% if user.is_admin %}checked{% endif %}>
-                        <span>Admin</span>
-                    </label>
-                    <button type="submit" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Save
-                    </button>
-                </form>
-            </td>
-            <td class="px-4 py-3">
-                {% if user.id == current_user.id %}
-                    <span class="text-gray-400 text-sm italic">You</span>
-                {% else %}
-                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
-                            Delete
-                        </button>
-                    </form>
-                {% endif %}
-            </td>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            {{ user.name }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+            {{ user.email }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 capitalize">
+            {{ user.role }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            {% if user.is_admin %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                Yes
+              </span>
+            {% else %}
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                No
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <form action="{{ url_for('admin.update_user_role', user_id=user.id) }}" method="POST" class="flex items-center space-x-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <select
+                name="role"
+                class="border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-1 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
+                <option value="instructor" {% if user.role == 'instructor' %}selected{% endif %}>Instructor</option>
+              </select>
+              <label class="flex items-center space-x-1 text-sm">
+                <input
+                  type="checkbox"
+                  name="is_admin"
+                  value="1"
+                  {% if user.is_admin %}checked{% endif %}
+                  class="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
+                >
+                <span class="text-gray-700 dark:text-gray-300">Admin</span>
+              </label>
+              <button
+                type="submit"
+                class="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+              >
+                Save
+              </button>
+            </form>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if user.id == current_user.id %}
+              <span class="text-gray-400 dark:text-gray-500 text-sm italic">You</span>
+            {% else %}
+              <form
+                action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                method="POST"
+                onsubmit="return confirm('Are you sure you want to delete this user?');"
+              >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button
+                  type="submit"
+                  class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition"
+                >
+                  Delete
+                </button>
+              </form>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
-    </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<!-- MOBILE & TABLET CARD VIEW -->
+<div class="lg:hidden space-y-4">
+  {% for user in users %}
+  <div class="bg-white dark:bg-gray-900 shadow-lg rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800">
+    <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h3 class="font-bold text-lg text-gray-900 dark:text-gray-100">{{ user.name }}</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ user.email }}</p>
+        </div>
+        {% if user.id == current_user.id %}
+          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
+            You
+          </span>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center gap-2 mt-3">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400 capitalize">
+          {{ user.role }}
+        </span>
+        {% if user.is_admin %}
+          <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+            ⭐ Admin
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="p-4">
+      <form action="{{ url_for('admin.update_user_role', user_id=user.id) }}" method="POST" class="space-y-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+          <select
+            name="role"
+            class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
+            <option value="instructor" {% if user.role == 'instructor' %}selected{% endif %}>Instructor</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="is_admin"
+              value="1"
+              {% if user.is_admin %}checked{% endif %}
+              class="w-4 h-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
+            >
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Grant Admin Privileges
+            </span>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button
+            type="submit"
+            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
+          >
+            💾 Save Changes
+          </button>
+
+          {% if user.id == current_user.id %}
+            <button
+              type="button"
+              disabled
+              class="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed text-sm font-medium"
+            >
+              🚫 Can't Delete
+            </button>
+          {% else %}
+            <button
+              type="button"
+              onclick="if(confirm('Are you sure you want to delete this user?')) { document.getElementById('delete-form-{{ user.id }}').submit(); }"
+              class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition text-sm"
+            >
+              🗑️ Delete User
+            </button>
+          {% endif %}
+        </div>
+      </form>
+
+      {% if user.id != current_user.id %}
+      <form
+        id="delete-form-{{ user.id }}"
+        action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+        method="POST"
+        class="hidden"
+      >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if not users %}
+<div class="text-center py-10 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 rounded-xl shadow mt-6">
+  <div class="text-5xl mb-4">👥</div>
+  <p class="text-lg mb-2">No users found</p>
+  <p class="text-sm">
+    {% if search_query %}
+      Try a different search term.
+    {% else %}
+      There are no users in the system yet.
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+
+</div>
 {% endblock %}

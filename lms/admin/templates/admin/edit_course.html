@@ -2,15 +2,15 @@
 
 {% block admin_content %}
 <!-- Page Heading -->
-<h1 class="text-4xl font-bold mb-8 text-gray-800">
+<h1 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100">
     Edit Course: {{ course.title }}
 </h1>
 
 <!-- Main Form Container -->
-<div class="max-w-xl mx-auto p-8 bg-white rounded-xl shadow-2xl border border-gray-100">
+<div class="max-w-xl mx-auto p-8 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-800 transition-colors">
 
     <!-- Section Title -->
-    <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">
+    <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-100">
         Update Course Details
     </h2>
 
@@ -20,55 +20,55 @@
         
         <!-- Title Field -->
         <div class="mb-4">
-            {{ form.title.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-            {{ form.title(class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500") }}
+            {{ form.title.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1") }}
+            {{ form.title(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors") }}
             {% for error in form.title.errors %}
                 <!-- Show validation errors for the title field -->
-                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>
             {% endfor %}
         </div>
         
         <!-- Instructor Field (dropdown or text depending on how WTForms is defined) -->
         <div class="mb-4">
-            {{ form.instructor.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-            {{ form.instructor(class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white") }}
+            {{ form.instructor.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1") }}
+            {{ form.instructor(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors") }}
             {% for error in form.instructor.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>
             {% endfor %}
         </div>
 
         <!-- Level Field (e.g., Beginner, Intermediate, Advanced) -->
         <div class="mb-4">
-            {{ form.level.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-            {{ form.level(class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white") }}
+            {{ form.level.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1") }}
+            {{ form.level(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors") }}
             {% for error in form.level.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>
             {% endfor %}
         </div>
 
         <!-- Category Field -->
         <div class="mb-4">
-            {{ form.category.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-            {{ form.category(class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500") }}
+            {{ form.category.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1") }}
+            {{ form.category(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors") }}
             {% for error in form.category.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>
             {% endfor %}
         </div>
         
         <!-- Description Field (multiline text area) -->
         <div class="mb-4">
-            {{ form.description.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-            {{ form.description(class="w-full px-4 py-2 border border-gray-300 rounded-lg h-32 resize-none focus:ring-blue-500 focus:border-blue-500") }}
+            {{ form.description.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1") }}
+            {{ form.description(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 h-32 resize-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors") }}
             {% for error in form.description.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                <p class="text-red-500 dark:text-red-400 text-xs mt-1">{{ error }}</p>
             {% endfor %}
         </div>
         
         <!-- Published Checkbox -->
         <div class="mb-6 flex items-center">
             <label class="inline-flex items-center cursor-pointer">
-                {{ form.published(class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300") }}
-                <span class="ml-2 text-sm font-medium text-gray-900">
+                {{ form.published(class="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-500 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-blue-500 dark:focus:ring-blue-400") }}
+                <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {{ form.published.label.text }}
                 </span>
             </label>
@@ -76,14 +76,14 @@
         
         <!-- Submit Button -->
         <div class="text-center">
-            {{ form.submit(class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 cursor-pointer") }}
+            {{ form.submit(class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 cursor-pointer") }}
         </div>
     </form>
     
     <!-- Cancel link to go back to course management page -->
     <div class="mt-4 text-center">
         <a href="{{ url_for('admin.manage_courses') }}" 
-           class="text-sm text-gray-500 hover:text-gray-700">
+           class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
            Cancel and return to management
         </a>
     </div>

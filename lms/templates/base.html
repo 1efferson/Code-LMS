@@ -24,7 +24,6 @@
     <!--  lottie -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.11.2/lottie.min.js"></script>
 
-
     <!-- Additional CSS block for child templates -->
     {% block head_css %}{% endblock %}
 </head>
@@ -37,13 +36,12 @@
     <div class="w-full px-4 sm:px-6 lg:px-8">  
         <div class="flex justify-between items-center h-16">
             
-            <!-- Site logo and name linking to homepage -->
-            <a href="{{ url_for('main.home') }}" 
-               class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-indigo-400 hover:text-indigo-300 transition duration-150 ease-in-out">
+            <!-- Site logo and name-->
+            <div class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-indigo-400 transition duration-150 ease-in-out">
                 <img src="{{ url_for('static', filename='images/code-lms-logo.png') }}" 
-                     alt="CodeLMS Logo" class="w-8 h-8 object-contain">
+                    alt="CodeLMS Logo" class="w-8 h-8 object-contain">
                 CODE-LMS
-            </a>
+            </div>
 
             <!-- Desktop Navigation Menu (hidden on mobile) -->
             <nav class="hidden md:flex md:space-x-8 items-center">
@@ -118,9 +116,15 @@
 
             <!-- Mobile menu button (hamburger icon) -->
             <div class="md:hidden">
-                <button type="button" class="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white p-2 rounded-md" aria-controls="mobile-menu" aria-expanded="false">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <button type="button" id="mobile-menu-button" class="text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white p-2 rounded-md" aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
+                    <!-- Hamburger icon (shown when menu is closed) -->
+                    <svg class="h-6 w-6" id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <!-- Close icon (shown when menu is open) -->
+                    <svg class="h-6 w-6 hidden" id="menu-icon-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -130,24 +134,27 @@
 
     <!-- Mobile navigation dropdown (hidden by default) -->
     <div class="md:hidden hidden" id="mobile-menu">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <!-- Home link for mobile -->
-            <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
-            
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-700">
             {% if current_user.is_authenticated %}
                 <!-- Authenticated mobile links -->
-                <a href="{{ url_for('courses.index') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Courses</a>
+                <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Home</a>
+                <a href="{{ url_for('courses.index') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Courses</a>
+                <a href="{{ url_for('main.profile') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">View Profile</a>
                 
                 {% if current_user.is_admin %}
-                    <a href="{{ url_for('admin.admin_index') }}" class="text-yellow-400 hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Admin Dashboard</a>
+                    <a href="{{ url_for('admin.admin_index') }}" class="text-yellow-400 hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition duration-150">Admin Dashboard</a>
                 {% endif %}
                 
-                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">View Profile</a>
-                <a href="{{ url_for('auth.logout') }}" class="bg-red-600 hover:bg-red-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2">Logout</a>
+                {% if current_user.role == 'instructor' %}
+                    <a href="{{ url_for('instructor.dashboard') }}" class="text-blue-400 hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition duration-150">Instructor Dashboard</a>
+                {% endif %}
+                
+                <a href="{{ url_for('auth.logout') }}" class="bg-red-600 hover:bg-red-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2 transition duration-150">Logout</a>
             {% else %}
                 <!-- Unauthenticated mobile links -->
-                <a href="{{ url_for('auth.login') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Login</a>
-                <a href="{{ url_for('auth.register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2">Get Started</a>
+                <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Home</a>
+                <a href="{{ url_for('auth.login') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white block px-3 py-2 rounded-md text-base font-medium mt-2 transition duration-150">Get Started</a>
             {% endif %}
         </div>
     </div>
@@ -199,7 +206,7 @@
 <main class="flex-grow">{% block content %}{% endblock %}</main>
 
 <!-- Footer -->
-<footer class="bg-white text-black py-4 mt-10">
+<footer class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 py-4 mt-10 border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
     <div class="container mx-auto text-center">
         <p>&copy; Cellusys Academy | All rights reserved 2025.</p>
     </div>
@@ -211,8 +218,8 @@
         <h3 class="text-lg font-bold mb-2">Session Expiring</h3>
         <p class="text-sm mb-4">Your session will expire in <span id="countdown">60</span> seconds.</p>
         <div class="flex justify-center gap-4">
-            <button id="stay-signed-in" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">Stay Signed In</button>
-            <button id="logout-now" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">Logout</button>
+            <button id="stay-signed-in" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition duration-150">Stay Signed In</button>
+            <button id="logout-now" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-150">Logout</button>
         </div>
     </div>
 </div>
@@ -222,12 +229,65 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Flash messages
+    // ==================== MOBILE MENU TOGGLE ====================
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIconOpen = document.getElementById('menu-icon-open');
+    const menuIconClose = document.getElementById('menu-icon-close');
+
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            
+            // Toggle menu visibility
+            mobileMenu.classList.toggle('hidden');
+            
+            // Toggle ARIA attribute
+            mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+            
+            // Toggle icons
+            if (menuIconOpen && menuIconClose) {
+                menuIconOpen.classList.toggle('hidden');
+                menuIconClose.classList.toggle('hidden');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const isClickInside = mobileMenuButton.contains(event.target) || mobileMenu.contains(event.target);
+            
+            if (!isClickInside && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+                if (menuIconOpen && menuIconClose) {
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            }
+        });
+
+        // Close mobile menu on window resize to desktop size
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) { // md breakpoint
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+                if (menuIconOpen && menuIconClose) {
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // ==================== FLASH MESSAGES ====================
     document.querySelectorAll('[role="alert"]').forEach(el => {
-        setTimeout(() => { el.style.opacity = 0; setTimeout(()=>el.remove(),500); }, 5000);
+        setTimeout(() => { 
+            el.style.opacity = 0; 
+            setTimeout(() => el.remove(), 500); 
+        }, 5000);
     });
 
-    // Session timeout logic
+    // ==================== SESSION TIMEOUT LOGIC ====================
     const sessionLifetimeMs = 30 * 60 * 1000; // 30 min
     const warningBeforeMs = 60 * 1000;       // 1 min before
     let countdownInterval;
@@ -250,10 +310,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 1000);
 
         document.getElementById('stay-signed-in').addEventListener('click', () => {
-            fetch("/keep-alive", { method: "POST" }).then(() => {
-                clearInterval(countdownInterval);
-                modal.classList.add('hidden');
-            });
+            fetch("/keep-alive", { method: "POST" })
+                .then(() => {
+                    clearInterval(countdownInterval);
+                    modal.classList.add('hidden');
+                    // Restart the timeout
+                    location.reload();
+                })
+                .catch(err => {
+                    console.error('Keep-alive failed:', err);
+                });
         });
 
         document.getElementById('logout-now').addEventListener('click', () => {
