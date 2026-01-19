@@ -1,0 +1,268 @@
+<!-- lms/messaging/templates/messaging/message_modal.html -->
+
+<!-- Message Modal (Hidden by default) -->
+<div id="message-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  
+  <!-- Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeMessageModal()"></div>
+  
+  <!-- Modal Container -->
+  <div class="flex min-h-screen items-center justify-center p-4">
+    
+    <div class="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm font-bold">
+              <span id="modal-student-initial"></span>
+            </div>
+            <div>
+              <h3 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Send Message
+              </h3>
+              <p id="modal-student-name" class="text-sm text-gray-600 dark:text-gray-400"></p>
+            </div>
+          </div>
+          
+          <!-- Close Button -->
+          <button 
+            type="button"
+            onclick="closeMessageModal()"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="px-6 py-6">
+        
+        <!-- Success Message (Hidden by default) -->
+        <div id="message-success" class="hidden mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span class="text-sm font-medium text-green-800 dark:text-green-200">Message sent successfully!</span>
+          </div>
+        </div>
+        
+        <!-- Error Message (Hidden by default) -->
+        <div id="message-error" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <span id="message-error-text" class="text-sm font-medium text-red-800 dark:text-red-200"></span>
+          </div>
+        </div>
+        
+        <!-- Message Form -->
+        <form id="message-form" class="space-y-4">
+          
+          <!-- CSRF Token -->
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" id="receiver-id" name="receiver_id" value="">
+          
+          <!-- Subject (Optional) -->
+          <div>
+            <label for="message-subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Subject (Optional)
+            </label>
+            <input 
+              type="text" 
+              id="message-subject" 
+              name="subject"
+              maxlength="200"
+              placeholder="Enter subject..."
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg 
+                     bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                     focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                     transition">
+          </div>
+          
+          <!-- Message Content -->
+          <div>
+            <label for="message-content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Message <span class="text-red-500">*</span>
+            </label>
+            <textarea 
+              id="message-content" 
+              name="content"
+              rows="5"
+              maxlength="5000"
+              required
+              placeholder="Type your message here..."
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg 
+                     bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                     focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                     transition resize-none"></textarea>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <span id="char-count">0</span> / 5000 characters
+            </p>
+          </div>
+          
+        </form>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex gap-3 justify-end">
+        <button 
+          type="button"
+          onclick="closeMessageModal()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
+                 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600
+                 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700
+                 transition">
+          Cancel
+        </button>
+        
+        <button 
+          type="button"
+          onclick="sendMessage()"
+          id="send-btn"
+          class="px-4 py-2 text-sm font-medium text-white
+                 bg-emerald-600 hover:bg-emerald-700
+                 rounded-lg transition
+                 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span id="send-btn-text">Send Message</span>
+          <span id="send-btn-loader" class="hidden">
+            <svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sending...
+          </span>
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+// Character counter for message content
+document.addEventListener('DOMContentLoaded', function() {
+  const messageContent = document.getElementById('message-content');
+  const charCount = document.getElementById('char-count');
+  
+  if (messageContent && charCount) {
+    messageContent.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+    });
+  }
+});
+
+/**
+ * Open message modal and populate with student data
+ */
+function openMessageModal(studentName, studentEmail, studentId) {
+  const modal = document.getElementById('message-modal');
+  const studentNameEl = document.getElementById('modal-student-name');
+  const studentInitialEl = document.getElementById('modal-student-initial');
+  const receiverIdInput = document.getElementById('receiver-id');
+  
+  // Set student info
+  studentNameEl.textContent = `To: ${studentName} (${studentEmail})`;
+  studentInitialEl.textContent = studentName.charAt(0).toUpperCase();
+  receiverIdInput.value = studentId;
+  
+  // Reset form
+  document.getElementById('message-form').reset();
+  document.getElementById('char-count').textContent = '0';
+  
+  // Hide success/error messages
+  document.getElementById('message-success').classList.add('hidden');
+  document.getElementById('message-error').classList.add('hidden');
+  
+  // Show modal
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+/**
+ * Close message modal
+ */
+function closeMessageModal() {
+  const modal = document.getElementById('message-modal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = ''; // Restore scroll
+}
+
+/**
+ * Send message via AJAX
+ */
+async function sendMessage() {
+  const form = document.getElementById('message-form');
+  const sendBtn = document.getElementById('send-btn');
+  const sendBtnText = document.getElementById('send-btn-text');
+  const sendBtnLoader = document.getElementById('send-btn-loader');
+  const successMsg = document.getElementById('message-success');
+  const errorMsg = document.getElementById('message-error');
+  const errorText = document.getElementById('message-error-text');
+  
+  // Hide previous messages
+  successMsg.classList.add('hidden');
+  errorMsg.classList.add('hidden');
+  
+  // Show loading state
+  sendBtn.disabled = true;
+  sendBtnText.classList.add('hidden');
+  sendBtnLoader.classList.remove('hidden');
+  
+  try {
+    const formData = new FormData(form);
+    
+    const response = await fetch('{{ url_for("messaging.send_message") }}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Show success message
+      successMsg.classList.remove('hidden');
+      
+      // Reset form
+      form.reset();
+      document.getElementById('char-count').textContent = '0';
+      
+      setTimeout(() => {
+      const receiverId = formData.get('receiver_id');
+      window.location.href = `/messaging/conversation/${receiverId}`;
+      }, 800);
+          
+    } else {
+      // Show error message
+      errorText.textContent = data.error || 'Failed to send message. Please try again.';
+      errorMsg.classList.remove('hidden');
+    }
+    
+  } catch (error) {
+    console.error('Error sending message:', error);
+    errorText.textContent = 'Network error. Please check your connection and try again.';
+    errorMsg.classList.remove('hidden');
+    
+  } finally {
+    // Reset button state
+    sendBtn.disabled = false;
+    sendBtnText.classList.remove('hidden');
+    sendBtnLoader.classList.add('hidden');
+  }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeMessageModal();
+  }
+});
+</script>

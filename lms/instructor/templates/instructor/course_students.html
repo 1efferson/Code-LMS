@@ -1,3 +1,5 @@
+<!-- course_students.html (UPDATED WITH MESSAGING) -->
+
 {% extends "base.html" %}
 {% block content %}
 
@@ -148,16 +150,32 @@
           </div>
         </div>
 
-        <!-- ACTION -->
-        <button
-          class="w-full px-4 py-2 text-sm font-semibold rounded-md
-                 bg-emerald-600 text-white
-                 hover:bg-emerald-700
-                 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2
-                 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-950
-                 transition">
-          View Profile
-        </button>
+        <!-- ACTIONS (UPDATED WITH MESSAGE ICON) -->
+        <div class="flex gap-2">
+          <button
+            class="flex-1 px-4 py-2 text-sm font-semibold rounded-md
+                   bg-emerald-600 text-white
+                   hover:bg-emerald-700
+                   focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2
+                   focus:ring-offset-gray-100 dark:focus:ring-offset-gray-950
+                   transition">
+            View Profile
+          </button>
+          
+          <!-- MESSAGE ICON BUTTON -->
+          <button
+            onclick="openMessageModal('{{ student.name }}', '{{ student.email }}', {{ student.id }})"
+            class="px-4 py-2 text-sm font-semibold rounded-md
+                   bg-blue-600 text-white
+                   hover:bg-blue-700
+                   focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2
+                   focus:ring-offset-gray-100 dark:focus:ring-offset-gray-950
+                   transition
+                   flex items-center justify-center"
+            title="Send message to {{ student.name }}">
+            <i class="fas fa-comment-alt"></i>
+          </button>
+        </div>
 
       </article>
       {% endfor %}
@@ -200,5 +218,8 @@
 
   </div>
 </div>
+
+<!-- Include Message Modal -->
+{% include 'messaging/message_modal.html' %}
 
 {% endblock %}

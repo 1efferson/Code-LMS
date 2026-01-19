@@ -1,3 +1,4 @@
+# lms/instructor/routes.py
 
 from flask import Blueprint, render_template, abort
 from flask_login import current_user, login_required
@@ -17,7 +18,6 @@ def restrict_to_instructors():
 def dashboard():
     courses = Course.query.filter_by(instructor_id=current_user.id).all()
     return render_template('instructor/dashboard.html', courses=courses)
-
 
 
 @instructor.route('/course/<int:course_id>/students')
@@ -48,8 +48,10 @@ def course_students(course_id):
         last_active = time_ago_in_words(latest_completion.completed_at) if latest_completion else "New user"
 
         students_data.append({
+            "id": student.id,  # ← NEW: Include student ID for messaging
             "name": student.name,
             "email": student.email,
+            "status": "active",  # ← NEW: Add status field (you can customize this logic)
             "courses_enrolled": courses_enrolled,
             "lessons_watched": lessons_watched,
             "courses_completed": courses_completed,
@@ -61,5 +63,3 @@ def course_students(course_id):
         course=course,
         students=students_data
     )
-
-
