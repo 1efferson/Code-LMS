@@ -1,0 +1,242 @@
+<!-- lms/messaging/templates/messaging/conversation.html -->
+<!-- TWO-WAY MESSAGING VERSION -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 dark:bg-gray-950 px-4 sm:px-8 py-10">
+  
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Header -->
+    <header class="mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="{{ url_for('instructor.dashboard') if current_user.role == 'instructor' else url_for('messaging.inbox') }}" 
+           class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg font-bold">
+            {{ other_user.name[:1].upper() }}
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {{ other_user.name }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {{ other_user.email }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Messages Container -->
+    <div class="bg-white/80 dark:bg-gray-900/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 dark:border-white/10">
+      
+      {% if messages %}
+        <!-- Messages List -->
+        <div class="p-6 space-y-4 max-h-[600px] overflow-y-auto" id="messages-container">
+          
+          {% for message in messages %}
+          <div class="flex {{ 'justify-end' if message.sender_id == current_user.id else 'justify-start' }}">
+            
+            <div class="max-w-[70%] {{ 'bg-emerald-600 text-white' if message.sender_id == current_user.id else 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100' }} rounded-2xl px-4 py-3 shadow-sm">
+              
+              <!-- Sender Name (helpful in group context) -->
+              <div class="text-xs font-semibold mb-1 {{ 'text-emerald-100' if message.sender_id == current_user.id else 'text-gray-600 dark:text-gray-400' }}">
+                {{ 'You' if message.sender_id == current_user.id else message.sender.name }}
+              </div>
+              
+              <!-- Subject (if exists) -->
+              {% if message.subject %}
+              <div class="font-semibold text-sm mb-1 {{ 'text-emerald-100' if message.sender_id == current_user.id else 'text-gray-700 dark:text-gray-300' }}">
+                {{ message.subject }}
+              </div>
+              {% endif %}
+              
+              <!-- Message Content -->
+              <p class="text-sm break-words whitespace-pre-wrap">{{ message.content }}</p>
+              
+              <!-- Timestamp -->
+              <div class="mt-2 text-xs {{ 'text-emerald-100' if message.sender_id == current_user.id else 'text-gray-500 dark:text-gray-400' }} flex items-center gap-2">
+                <span>{{ message.time_ago() }}</span>
+                
+                {% if message.sender_id == current_user.id %}
+                  {% if message.is_read %}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span class="text-xs">Read</span>
+                  {% else %}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-xs">Sent</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              
+            </div>
+          </div>
+          {% endfor %}
+          
+        </div>
+        
+        <!-- Reply Form (AVAILABLE FOR BOTH INSTRUCTORS AND STUDENTS) -->
+        <div class="border-t border-gray-200 dark:border-gray-700 p-6">
+          
+          <!-- Success Message (Hidden by default) -->
+          <div id="reply-success" class="hidden mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="text-sm font-medium text-green-800 dark:text-green-200">Reply sent successfully!</span>
+            </div>
+          </div>
+          
+          <!-- Error Message (Hidden by default) -->
+          <div id="reply-error" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <span id="reply-error-text" class="text-sm font-medium text-red-800 dark:text-red-200"></span>
+          </div>
+          
+          <form id="quick-message-form" class="space-y-4">
+            
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {{ form.receiver_id }}
+            
+            <!-- Subject (Optional) -->
+            {{ form.subject(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition", placeholder="Subject (optional)") }}
+            
+            <!-- Content -->
+            {{ form.content(class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition resize-none", rows=3, placeholder="Type your reply...") }}
+            
+            <!-- Character Counter -->
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              <span id="reply-char-count">0</span> / 5000 characters
+            </p>
+            
+            <!-- Submit Button -->
+            <button 
+              type="submit"
+              id="reply-btn"
+              class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <span id="reply-btn-text">Send Reply</span>
+              <span id="reply-btn-loader" class="hidden">
+                <svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sending...
+              </span>
+            </button>
+            
+          </form>
+        </div>
+        
+      {% else %}
+        <!-- Empty State -->
+        <div class="p-12 text-center">
+          <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            No messages yet
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            Start a conversation by sending a message.
+          </p>
+        </div>
+      {% endif %}
+      
+    </div>
+    
+  </div>
+</div>
+
+<script>
+// Character counter for reply
+document.addEventListener('DOMContentLoaded', function() {
+  const contentField = document.querySelector('[name="content"]');
+  const charCount = document.getElementById('reply-char-count');
+  
+  if (contentField && charCount) {
+    contentField.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+    });
+  }
+  
+  // Auto-scroll to bottom of messages
+  const messagesContainer = document.getElementById('messages-container');
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+});
+
+// Auto-submit reply form via AJAX
+document.getElementById('quick-message-form')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const replyBtn = document.getElementById('reply-btn');
+  const replyBtnText = document.getElementById('reply-btn-text');
+  const replyBtnLoader = document.getElementById('reply-btn-loader');
+  const successMsg = document.getElementById('reply-success');
+  const errorMsg = document.getElementById('reply-error');
+  const errorText = document.getElementById('reply-error-text');
+  
+  // Hide previous messages
+  successMsg.classList.add('hidden');
+  errorMsg.classList.add('hidden');
+  
+  // Show loading state
+  replyBtn.disabled = true;
+  replyBtnText.classList.add('hidden');
+  replyBtnLoader.classList.remove('hidden');
+  
+  try {
+    const response = await fetch('{{ url_for("messaging.send_message") }}', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Show success message
+      successMsg.classList.remove('hidden');
+      
+      // Clear form
+      this.reset();
+      document.getElementById('reply-char-count').textContent = '0';
+      
+      // Reload page after 1 second to show new message
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } else {
+      // Show error message
+      errorText.textContent = data.error || 'Failed to send reply. Please try again.';
+      errorMsg.classList.remove('hidden');
+    }
+    
+  } catch (error) {
+    console.error('Error:', error);
+    errorText.textContent = 'Network error. Please try again.';
+    errorMsg.classList.remove('hidden');
+    
+  } finally {
+    // Reset button state
+    replyBtn.disabled = false;
+    replyBtnText.classList.remove('hidden');
+    replyBtnLoader.classList.add('hidden');
+  }
+});
+</script>
+{% endblock %}

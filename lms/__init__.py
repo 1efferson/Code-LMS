@@ -2,7 +2,6 @@
 
 from flask import Flask
 from .extensions import db, login_manager, csrf, bcrypt, migrate
-# cache
 from flask_mail import Mail
 import logging
 from flask import render_template
@@ -17,10 +16,10 @@ from .courses.routes import courses as courses_blueprint
 from .admin import admin as admin_blueprint
 from lms.commands import promote_admin
 from lms.instructor import instructor
+from lms.messaging import messaging  
 
 
-
-mail = Mail()  # ✅ initialize Flask-Mail globally
+mail = Mail()  # initialized Flask-Mail globally
 
 
 @login_manager.user_loader
@@ -44,14 +43,14 @@ def create_app(config_object='config.Config'):
     app.config.from_object(config_object)
 
 
-# Tuning SQLAlchemy engine options for better performance
+    # Tuning SQLAlchemy engine options for better performance
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "pool_size": 10,          # number of persistent connections
-    "max_overflow": 5,        # number of connections beyond pool_size allowed
-    "pool_timeout": 30,       # seconds to wait for a free connection
-    "pool_recycle": 1800,     # recycle connections every 30 minutes
-    "pool_pre_ping": True,
-}
+        "pool_size": 10,          # number of persistent connections
+        "max_overflow": 5,        # number of connections beyond pool_size allowed
+        "pool_timeout": 30,       # seconds to wait for a free connection
+        "pool_recycle": 1800,     # recycle connections every 30 minutes
+        "pool_pre_ping": True,
+    }
 
     # CLI command
     app.cli.add_command(promote_admin)
@@ -63,7 +62,6 @@ def create_app(config_object='config.Config'):
     csrf.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)  
-    # cache.init_app(app) 
     
     # Flask-Login config
     login_manager.login_view = 'auth.login'
@@ -75,9 +73,11 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(courses_blueprint, url_prefix='/courses')
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
     app.register_blueprint(instructor, url_prefix='/instructor')
+    app.register_blueprint(messaging, url_prefix='/messages')  # ← NEW: Register messaging blueprint
 
     # Import models for Alembic
     from . import models 
+    from .models.message import Message  
     
     # Register error handlers
     register_error_handlers(app)

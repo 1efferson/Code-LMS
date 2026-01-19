@@ -1,0 +1,132 @@
+<!-- lms/messaging/templates/messaging/inbox.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 dark:bg-gray-950 px-4 sm:px-8 py-10">
+  
+  <div class="max-w-5xl mx-auto">
+    
+    <!-- Header -->
+    <header class="mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+        <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        Your Messages
+      </h2>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">
+        {% if unread_count > 0 %}
+          You have <span class="font-bold text-emerald-600">{{ unread_count }}</span> unread message{{ 's' if unread_count != 1 else '' }}
+        {% else %}
+          All messages read
+        {% endif %}
+      </p>
+    </header>
+    
+    {% if messages %}
+      
+      <!-- Messages List -->
+      <div class="space-y-3">
+        
+        {% for message in messages %}
+        <div 
+          class="bg-white/80 dark:bg-gray-900/70 backdrop-blur-lg rounded-xl shadow-md border 
+                 {{ 'border-emerald-500 dark:border-emerald-600' if not message.is_read else 'border-white/40 dark:border-white/10' }}
+                 hover:shadow-lg transition cursor-pointer"
+          onclick="window.location.href='{{ url_for('messaging.conversation', user_id=message.sender_id) }}'">
+          
+          <div class="p-5">
+            <div class="flex items-start justify-between gap-4">
+              
+              <!-- Sender Info -->
+              <div class="flex items-start gap-3 flex-1 min-w-0">
+                
+                <!-- Avatar -->
+                <div class="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                  {{ message.sender.name[:1].upper() }}
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                      {{ message.sender.name }}
+                    </h3>
+                    
+                    {% if not message.is_read %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                      New
+                    </span>
+                    {% endif %}
+                  </div>
+                  
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    {{ message.sender.email }}
+                  </p>
+                  
+                  <!-- Subject -->
+                  {% if message.subject %}
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                    {{ message.subject }}
+                  </p>
+                  {% endif %}
+                  
+                  <!-- Preview -->
+                  <p class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                    {{ message.content[:150] }}{{ '...' if message.content|length > 150 else '' }}
+                  </p>
+                </div>
+              </div>
+              
+              <!-- Timestamp -->
+              <div class="text-right flex-shrink-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ message.time_ago() }}
+                </p>
+                
+                {% if message.is_read %}
+                <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 mt-2 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                {% else %}
+                <div class="w-3 h-3 bg-emerald-500 rounded-full mt-2 ml-auto"></div>
+                {% endif %}
+              </div>
+              
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        
+      </div>
+      
+    {% else %}
+      
+      <!-- Empty State -->
+      <div class="bg-white/80 dark:bg-gray-900/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 dark:border-white/10 p-12 text-center">
+        <svg class="w-20 h-20 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          No messages yet
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400">
+          You haven't received any messages from your instructors.
+        </p>
+      </div>
+      
+    {% endif %}
+    
+    <!-- Back Button -->
+    <div class="mt-8 text-center">
+      <a href="{{ url_for('courses.index') }}">
+        <button class="inline-flex items-center px-6 py-2 text-sm font-medium rounded-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+          ← Back to Courses
+        </button>
+      </a>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}
