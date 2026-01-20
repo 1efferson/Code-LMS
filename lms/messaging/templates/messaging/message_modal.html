@@ -235,9 +235,11 @@ async function sendMessage() {
       form.reset();
       document.getElementById('char-count').textContent = '0';
       
+      // correct URL prefix (/messages)
       setTimeout(() => {
-      const receiverId = formData.get('receiver_id');
-      window.location.href = `/messaging/conversation/${receiverId}`;
+        const receiverId = data.receiver_id;
+        // Use Flask's url_for to generate the correct URL
+        window.location.href = '{{ url_for("messaging.conversation", user_id=0) }}'.replace('0', receiverId);
       }, 800);
           
     } else {

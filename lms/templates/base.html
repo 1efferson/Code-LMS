@@ -66,20 +66,37 @@
                             </a>
                         </li>
                         <!-- Messages link -->
+                                            
                         <li>
-                            <a href="{{ url_for('messaging.inbox') }}"
-                               class="flex items-center gap-2 text-gray-300 hover:text-emerald-400 
-                                      px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8
-                                             M5 19h14a2 2 0 002-2V7
-                                             a2 2 0 00-2-2H5
-                                             a2 2 0 00-2 2v10
-                                             a2 2 0 002 2z"/>
-                                </svg>
-                                <span>Messages</span>
-                            </a>
+                            {% if current_user.role == 'student' %}
+                                <a href="{{ url_for('messaging.inbox') }}"
+                                class="flex items-center gap-2 text-gray-300 hover:text-emerald-400 
+                                        px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8
+                                                M5 19h14a2 2 0 002-2V7
+                                                a2 2 0 00-2-2H5
+                                                a2 2 0 00-2 2v10
+                                                a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Messages</span>
+                                </a>
+                            {% elif current_user.role == 'instructor' %}
+                                <a href="{{ url_for('messaging.instructor_messages') }}"
+                                class="flex items-center gap-2 text-gray-300 hover:text-blue-400 
+                                        px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8
+                                                M5 19h14a2 2 0 002-2V7
+                                                a2 2 0 00-2-2H5
+                                                a2 2 0 00-2 2v10
+                                                a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Messages</span>
+                                </a>
+                            {% endif %}
                         </li>
 
                         <!-- Profile icon with user initials -->
@@ -155,6 +172,28 @@
                 <!-- Authenticated mobile links -->
                 <a href="{{ url_for('main.home') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Home</a>
                 <a href="{{ url_for('courses.index') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">Courses</a>
+                
+                <!-- Messages link - ADDED FOR MOBILE -->
+                {% if current_user.role == 'student' %}
+                    <a href="{{ url_for('messaging.inbox') }}" 
+                    class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span>Messages</span>
+                    </a>
+                {% elif current_user.role == 'instructor' %}
+                    <a href="{{ url_for('messaging.instructor_messages') }}" 
+                    class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span>Messages</span>
+                    </a>
+                {% endif %}
+                
                 <a href="{{ url_for('main.profile') }}" class="text-gray-300 hover:bg-gray-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150">View Profile</a>
                 
                 {% if current_user.is_admin %}

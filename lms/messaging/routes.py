@@ -9,6 +9,7 @@ from lms.extensions import db
 from lms.models import User, Message
 from .forms import SendMessageForm, MarkAsReadForm
 from . import messaging
+from sqlalchemy import distinct
 
 
 # =====================================================
@@ -343,3 +344,84 @@ def delete_message(message_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': 'Failed to delete message'}), 500
+# =====================================================
+# INSTRUCTOR MESSAGES OVERVIEW
+# =====================================================
+
+# Add this route after your existing routes
+@messaging.route('/instructor-messages')
+@login_required
+def instructor_messages():
+    """
+    Instructor messages overview - list all students they've messaged or received messages from.
+    
+    Security:
+    - Only instructors can access this page
+    """
+    if current_user.role != 'instructor':
+        flash('Only instructors can access this page.', 'warning')
+        return redirect(url_for('courses.index'))
+    
+    # Get all unique students the instructor has messaged (sent or received)
+    sent_to = db.session.query(distinct(Message.receiver_id)).filter(
+        Message.sender_id == current_user.id,
+        Message.is_deleted == False
+    ).all()
+    
+    received_from = db.session.query(distinct(Message.sender_id)).filter(
+        Message.receiver_id == current_user.id,
+        Message.is_deleted == False
+    ).all()
+    
+    # Combine both lists and get unique student IDs
+    student_ids = set([r[0] for r in sent_to] + [r[0] for r in received_from])
+    
+    if not student_ids:
+        # No conversations yet
+        return render_template('messaging/instructor_inbox.html', conversations=[])
+    
+    # Get conversation data for each student
+    conversations = []
+    for student_id in student_ids:
+        student = User.query.get(student_id)
+        if not student:
+            continue
+        
+        # Get latest message in this conversation
+        latest_message = Message.query.filter(
+            or_(
+                and_(Message.sender_id == current_user.id, Message.receiver_id == student_id),
+                and_(Message.sender_id == student_id, Message.receiver_id == current_user.id)
+            ),
+            Message.is_deleted == False
+        ).order_by(Message.created_at.desc()).first()
+        
+        if not latest_message:
+            continue
+        
+        # Count unread messages from this student
+        unread_count = Message.query.filter(
+            Message.sender_id == student_id,
+            Message.receiver_id == current_user.id,
+            Message.is_read == False,
+            Message.is_deleted == False
+        ).count()
+        
+        conversations.append({
+            'student': student,
+            'latest_message': latest_message,
+            'unread_count': unread_count,
+            'last_message_time': latest_message.created_at
+        })
+    
+    # Sort by most recent message first
+    conversations.sort(key=lambda x: x['last_message_time'], reverse=True)
+    
+    # Count total unread messages
+    total_unread = sum(conv['unread_count'] for conv in conversations)
+    
+    return render_template(
+        'messaging/instructor_inbox.html',
+        conversations=conversations,
+        unread_count=total_unread
+    )
