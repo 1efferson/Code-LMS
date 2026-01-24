@@ -1,0 +1,92 @@
+/* Light mode (default) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --border-color: #e5e7eb;
+  --header-bg: #1f2937;
+  --header-text: #d1d5db;
+  --accent-primary: #6366f1;
+  --accent-hover: #4f46e5;
+  --input-bg: #ffffff;
+  --input-text: #111827;
+  --input-border: #d1d5db;
+  --placeholder-color: #9ca3af;
+}
+
+/* Dark mode */
+.dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --border-color: #374151;
+  --header-bg: #030712;
+  --header-text: #e5e7eb;
+  --accent-primary: #818cf8;
+  --accent-hover: #6366f1;
+  --input-bg: #1f2937;
+  --input-text: #f9fafb;
+  --input-border: #4b5563;
+  --placeholder-color: #9ca3af;
+}
+
+/* Apply to body */
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header */
+header {
+  background-color: var(--header-bg) !important;
+  color: var(--header-text) !important;
+}
+
+/* Footer */
+footer {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* All inputs, textareas, selects */
+input,
+textarea,
+select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder-color) !important;
+}
+
+/* Cards and containers */
+.card,
+.container,
+[class*="bg-white"],
+[class*="bg-gray"] {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Modals */
+.modal,
+#session-modal > div {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Flash messages - preserve their colors but adjust for dark mode */
+.dark [role="alert"] {
+  filter: brightness(0.8);
+}

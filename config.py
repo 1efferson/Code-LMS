@@ -1,48 +1,63 @@
 
-
 # config.py
-
 
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
 
-# Load environment variables from .env file
-load_dotenv(dotenv_path=".env.production")
+# Auto-detect environment and load appropriate .env file
+env = os.getenv('FLASK_ENV', 'production')
 
+if env == 'development':
+    load_dotenv('.env.development')
+    print(" Development Mode: Using SQLite (Fast!)")
+else:
+    load_dotenv('.env.production')
+    print("Production Mode: Using PostgreSQL")
 
-# Helper function to require environment variables
-def get_env_variable(name):
-    value = os.getenv(name)
-    if value is None:
-        raise EnvironmentError(f"Missing required environment variable: {name}")
-    return value
 
 class Config:
+    # Environment
+    ENV = os.getenv('FLASK_ENV', 'production')
+    DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    # Security
     SECRET_KEY = os.getenv('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     ADMIN_SIGNUP_CODE = os.getenv('ADMIN_SIGNUP_CODE')
     
-    # --- FLASK-MAIL CONFIGURATION (Secrets loaded from environment) ---
+    # Database
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # SQLAlchemy engine options (only for production PostgreSQL)
+    if ENV == 'production':
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_size": 10,
+            "max_overflow": 5,
+            "pool_timeout": 30,
+            "pool_recycle": 1800,
+            "pool_pre_ping": True,
+        }
+    else:
+        # SQLite doesn't need connection pooling
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+    
+    # Flask-Mail Configuration
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USE_TLS = False 
     MAIL_USE_SSL = True 
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = ('CodeLMS', os.getenv('MAIL_DEFAULT_EMAIL', 'noreply@codelms.com'))
     
-    # These MUST be loaded from environment variables and never hardcoded
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    # Warn if mail not configured (optional in dev)
+    if ENV == 'production' and not all([MAIL_USERNAME, MAIL_PASSWORD]):
+        print("WARNING: MAIL_USERNAME and MAIL_PASSWORD not set!")
     
-    # The default sender should also be customizable
-    MAIL_DEFAULT_SENDER = ('CodeLMS', os.environ.get('MAIL_DEFAULT_EMAIL', 'noreply@codelms.com'))
-
-    # Ensure required mail variables are set
-    if not all([MAIL_USERNAME, MAIL_PASSWORD]):
-        print("WARNING: MAIL_USERNAME and MAIL_PASSWORD are not set in environment variables!")
-
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)  # 30 mins session lifetime
-
-    # Simple in-memory cache (for development or small apps)
+    # Session
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
+    
+    # Cache
     CACHE_TYPE = "SimpleCache"
-    CACHE_DEFAULT_TIMEOUT = 300  # seconds (5 minutes)
+    CACHE_DEFAULT_TIMEOUT = 300

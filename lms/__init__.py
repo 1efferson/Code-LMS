@@ -42,16 +42,6 @@ def create_app(config_object='config.Config'):
     app = Flask('lms', instance_relative_config=True)
     app.config.from_object(config_object)
 
-
-    # Tuning SQLAlchemy engine options for better performance
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_size": 10,          # number of persistent connections
-        "max_overflow": 5,        # number of connections beyond pool_size allowed
-        "pool_timeout": 30,       # seconds to wait for a free connection
-        "pool_recycle": 1800,     # recycle connections every 30 minutes
-        "pool_pre_ping": True,
-    }
-
     # CLI command
     app.cli.add_command(promote_admin)
     
