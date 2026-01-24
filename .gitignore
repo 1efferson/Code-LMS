@@ -1,7 +1,6 @@
 # Python cache
 __pycache__/
-__pycache__
-*.pyc       
+*.pyc
 
 # Virtual environment
 .venv/
@@ -12,12 +11,13 @@ myvenv/
 # Node
 node_modules/
 
-# Flask instance folder
+# Flask instance folder 
 instance/
 
 # Environment files
 .env
 .env.production
+.env.development
 
 # macOS
 .DS_Store
@@ -31,6 +31,3 @@ instance/
 
 # CSS build output
 output.css
-
-# Database migrations
-migrations/
