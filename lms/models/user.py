@@ -25,7 +25,7 @@ class User(db.Model, UserMixin):
     # -------------------------------
     user_enrollments = db.relationship(
         'Enrollment',
-        backref='user',          # backref replaces a separate relationship in Enrollment
+        backref='user',          
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
