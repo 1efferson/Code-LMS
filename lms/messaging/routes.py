@@ -378,7 +378,7 @@ def instructor_messages():
     
     if not student_ids:
         # No conversations yet
-        return render_template('messaging/instructor_inbox.html', conversations=[])
+        return render_template('messaging/instructor_inbox.html', conversations=[], unread_count=0)
     
     # Get conversation data for each student
     conversations = []
