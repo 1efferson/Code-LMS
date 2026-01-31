@@ -31,3 +31,5 @@ instance/
 
 # CSS build output
 output.css
+lms/courses/static/uploads/*
+!lms/courses/static/uploads/.gitkeep
