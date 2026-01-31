@@ -72,6 +72,10 @@ def create_app(config_object='config.Config'):
     # Import models for Alembic
     from . import models 
     from .models.message import Message  
+
+    from lms.utils import get_course_image_url
+
+    app.jinja_env.globals['get_course_image_url'] = get_course_image_url
     
     # Register error handlers
     register_error_handlers(app)

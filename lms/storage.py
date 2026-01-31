@@ -154,6 +154,7 @@ class CloudinaryStorage(StorageBackend):
 def get_storage_backend():
     """Get the configured storage backend."""
     backend_type = current_app.config.get('STORAGE_BACKEND', 'local')
+    current_app.logger.warning(f"STORAGE_BACKEND ACTIVE = {backend_type}")
     
     if backend_type == 'cloudinary':
         return CloudinaryStorage()

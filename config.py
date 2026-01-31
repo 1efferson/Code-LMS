@@ -2,18 +2,19 @@
 # config.py
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
-import os
 
-# Auto-detect environment and load appropriate .env file
-ENV  = os.getenv('FLASK_ENV', "development")
+BASE_DIR = Path(__file__).resolve().parent
+
+ENV = os.getenv('FLASK_ENV', "development")
 
 if ENV == 'development':
-    load_dotenv('.env.development')
+    load_dotenv(BASE_DIR / '.env.development')
     print(" Development Mode: Using SQLite (Fast!)")
 else:
-    load_dotenv('.env.production')
+    load_dotenv(BASE_DIR / '.env.production')
     print("Production Mode: Using PostgreSQL")
 
 
