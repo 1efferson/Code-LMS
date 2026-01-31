@@ -26,6 +26,9 @@ class Course(db.Model):
     level = db.Column(db.String(50), default='Beginner', nullable=True)
     category = db.Column(db.String(100), nullable=True)
 
+    # Image filename field
+    image_filename = db.Column(db.String(255), nullable=True)
+
     instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -35,6 +38,12 @@ class Course(db.Model):
     
 
     modules = db.relationship('Module', backref='course', lazy='dynamic', cascade='all, delete-orphan')
+
+     # Helper method to get image URL
+    def get_image_url(self):
+        """Returns the URL for the course image or a default placeholder."""
+        from lms.utils import get_course_image_url
+        return get_course_image_url(self.image_filename)
 
     def __repr__(self):
         return f'<Course {self.title}>'

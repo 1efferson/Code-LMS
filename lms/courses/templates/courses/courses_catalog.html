@@ -10,25 +10,17 @@
 
 {% block content %}
 
-<!-- PAGE WRAPPER-->
-<div class="bg-gray-100 dark:bg-gray-950
-            text-gray-900 dark:text-gray-100
-            transition-colors duration-300">
+<div class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     <!-- LEVEL NAV -->
-    <div class="level-nav
-                bg-white dark:bg-gray-900
-                border-b border-gray-200 dark:border-gray-800">
-        <a href="#beginner" id="beginner-link"
-           class="nav-link text-gray-700 dark:text-gray-300">
+    <div class="level-nav bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <a href="#beginner" id="beginner-link" class="nav-link text-gray-700 dark:text-gray-300">
             Beginner
         </a>
-        <a href="#intermediate" id="intermediate-link"
-           class="nav-link text-gray-700 dark:text-gray-300">
+        <a href="#intermediate" id="intermediate-link" class="nav-link text-gray-700 dark:text-gray-300">
             Intermediate
         </a>
-        <a href="#advanced" id="advanced-link"
-           class="nav-link text-gray-700 dark:text-gray-300">
+        <a href="#advanced" id="advanced-link" class="nav-link text-gray-700 dark:text-gray-300">
             Advanced
         </a>
     </div>
@@ -46,15 +38,17 @@
 
             <div class="course-grid">
                 {% for course in courses if course.level == 'Beginner' %}
-                <div class="course-card
-                            bg-white dark:bg-gray-900
-                            border border-gray-200 dark:border-gray-800
-                            shadow-sm hover:shadow-md
-                            transition"
+                <div class="course-card bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition overflow-hidden"
                      data-level="{{ course.level }}">
 
-                    <div class="card-header beginner-header
-                                text-gray-800 dark:text-gray-100">
+                    <!-- Course Image -->
+                    <div class="relative overflow-hidden">
+                        <img src="{{ course.get_image_url() }}" 
+                             alt="{{ course.title }}"
+                             class="w-full h-48 object-cover transition-transform duration-300 hover:scale-105">
+                    </div>
+
+                    <div class="card-header beginner-header text-gray-800 dark:text-gray-100">
                         {{ course.category or 'Programming' }}
                     </div>
 
@@ -88,15 +82,17 @@
 
             <div class="course-grid">
                 {% for course in courses if course.level == 'Intermediate' %}
-                <div class="course-card
-                            bg-white dark:bg-gray-900
-                            border border-gray-200 dark:border-gray-800
-                            shadow-sm hover:shadow-md
-                            transition"
+                <div class="course-card bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition overflow-hidden"
                      data-level="{{ course.level }}">
 
-                    <div class="card-header intermediate-header
-                                text-gray-800 dark:text-gray-100">
+                    <!-- Course Image -->
+                    <div class="relative overflow-hidden">
+                        <img src="{{ course.get_image_url() }}" 
+                             alt="{{ course.title }}"
+                             class="w-full h-48 object-cover transition-transform duration-300 hover:scale-105">
+                    </div>
+
+                    <div class="card-header intermediate-header text-gray-800 dark:text-gray-100">
                         {{ course.category or 'Development' }}
                     </div>
 
@@ -130,15 +126,17 @@
 
             <div class="course-grid">
                 {% for course in courses if course.level == 'Advanced' %}
-                <div class="course-card
-                            bg-white dark:bg-gray-900
-                            border border-gray-200 dark:border-gray-800
-                            shadow-sm hover:shadow-md
-                            transition"
+                <div class="course-card bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition overflow-hidden"
                      data-level="{{ course.level }}">
 
-                    <div class="card-header advanced-header
-                                text-gray-800 dark:text-gray-100">
+                    <!-- Course Image -->
+                    <div class="relative overflow-hidden">
+                        <img src="{{ course.get_image_url() }}" 
+                            alt="{{ course.title }}"
+                            class="w-full h-48 object-contain bg-gray-100 dark:bg-gray-800 transition-transform duration-300 hover:scale-105">
+                    </div>
+
+                    <div class="card-header advanced-header text-gray-800 dark:text-gray-100">
                         {{ course.category or 'Full-Stack' }}
                     </div>
 
@@ -164,54 +162,72 @@
 
     </div>
 
-    <!-- STREAK CARD -->
-    {% if current_user.is_authenticated %}
-    <div id="streak-card"
-         class="fixed bottom-6 right-6 w-64
-                bg-white/70 dark:bg-gray-900/80
-                backdrop-blur-lg
-                border border-gray-200 dark:border-gray-800
-                rounded-xl shadow-lg p-4
-                flex items-center gap-4
-                animate-fadeIn animate-pop z-40">
+    <!-- STREAK CARD WITH ERROR HANDLING -->
+{% if current_user.is_authenticated %}
+<div id="streak-card"
+     class="fixed bottom-6 right-6 w-64 bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg p-4 flex items-center gap-4 animate-fadeIn animate-pop z-40">
 
-        <div id="lottie-streak" class="w-16 h-16"></div>
+    <div id="lottie-streak" class="w-16 h-16"></div>
 
-        <div>
-            <div class="text-sm text-gray-700 dark:text-gray-300 font-semibold">
-                🔥 Daily Streak
-            </div>
-            <div class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ current_user.login_streak }} day{% if current_user.login_streak > 1 %}s{% endif %}
-            </div>
+    <div>
+        <div class="text-sm text-gray-700 dark:text-gray-300 font-semibold">
+            Daily Streak
+        </div>
+        <div class="text-lg font-bold text-gray-900 dark:text-white">
+            {{ current_user.login_streak }} day{% if current_user.login_streak > 1 %}s{% endif %}
         </div>
     </div>
-
-    <script>
-        lottie.loadAnimation({
-            container: document.getElementById('lottie-streak'),
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: '{{ url_for("courses.static", filename="lottie/streak.json") }}'
-        });
-    </script>
-
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pop {
-            0% { transform: scale(0); }
-            60% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-        .animate-pop { animation: pop 0.6s ease-out forwards; }
-    </style>
-    {% endif %}
-
 </div>
-<!-- PAGE WRAPPER ENDS HERE -->
+
+<script>
+    // Wait for DOM and Lottie to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lottie !== 'undefined') {
+            try {
+                const animation = lottie.loadAnimation({
+                    container: document.getElementById('lottie-streak'),
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    path: '{{ url_for("courses.static", filename="lottie/streak.json") }}'
+                });
+                
+                // Optional: Log when animation loads successfully
+                animation.addEventListener('DOMLoaded', function() {
+                    console.log('Lottie animation loaded successfully');
+                });
+                
+                // Optional: Handle errors
+                animation.addEventListener('data_failed', function() {
+                    console.error('Failed to load Lottie animation');
+                    // Fallback: Show a fire emoji instead
+                    document.getElementById('lottie-streak').innerHTML = '<div class="text-4xl">🔥</div>';
+                });
+            } catch (error) {
+                console.error('Error initializing Lottie:', error);
+                // Fallback: Show a fire emoji instead
+                document.getElementById('lottie-streak').innerHTML = '<div class="text-4xl">🔥</div>';
+            }
+        } else {
+            console.error('Lottie library not loaded');
+            // Fallback: Show a fire emoji instead
+            document.getElementById('lottie-streak').innerHTML = '<div class="text-4xl">🔥</div>';
+        }
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pop {
+        0% { transform: scale(0); }
+        60% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-pop { animation: pop 0.6s ease-out forwards; }
+</style>
+{% endif %}
 {% endblock %}
