@@ -9,6 +9,7 @@ from . import admin
 from lms.models import User
 from .forms import CourseForm, ModuleForm, LessonForm
 from slugify import slugify 
+from lms.utils import save_course_image, delete_course_image
 # from lms import cache
 
 def is_admin(user):
@@ -45,6 +46,16 @@ def add_course():
         instructor_user = form.instructor.data
         instructor_id = instructor_user.id if instructor_user else None
         
+        # Handle image upload
+        image_filename = None
+        if 'course_image' in request.files:
+            file = request.files['course_image']
+            if file.filename:  # Check if file was actually selected
+                image_filename = save_course_image(file)
+                if not image_filename:
+                    flash('Invalid file type. Please upload PNG, JPG, JPEG, GIF, or WebP.', 'error')
+                    return redirect(request.url)
+        
         # Create a new course instance
         course = Course(
             title=form.title.data,
@@ -53,7 +64,8 @@ def add_course():
             level=form.level.data,
             category=form.category.data,
             published=form.published.data,
-            instructor_id=instructor_id
+            instructor_id=instructor_id,
+            image_filename=image_filename  # Add image
         )
         db.session.add(course)
         db.session.commit()
@@ -63,6 +75,7 @@ def add_course():
         return redirect(url_for('admin.manage_course_outline', course_id=course.id)) 
 
     return render_template('admin/add_course.html', form=form)
+
 
 
 @admin.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
@@ -85,6 +98,22 @@ def edit_course(course_id):
         instructor_user = form.instructor.data
         course.instructor_id = instructor_user.id if instructor_user else None
         
+        # Handle image upload
+        if 'course_image' in request.files:
+            file = request.files['course_image']
+            if file.filename:  # New file was selected
+                # Delete old image if exists
+                if course.image_filename:
+                    delete_course_image(course.image_filename)
+                
+                # Save new image
+                new_filename = save_course_image(file)
+                if new_filename:
+                    course.image_filename = new_filename
+                else:
+                    flash('Invalid file type. Please upload PNG, JPG, JPEG, GIF, or WebP.', 'error')
+                    return redirect(request.url)
+        
         # Update course attributes
         course.title = form.title.data
         if db.session.is_modified(course, 'title'):
@@ -101,6 +130,7 @@ def edit_course(course_id):
 
     form.submit.label.text = 'Save Changes'
     return render_template('admin/edit_course.html', form=form, course=course)
+
 
 
 @admin.route('/courses/manage')
@@ -154,6 +184,11 @@ def delete_course(course_id):
         flash("Course not found.", "danger")
     else:
         course_title = course.title
+        
+        # Delete course image if it exists
+        if course.image_filename:
+            delete_course_image(course.image_filename)
+        
         db.session.delete(course)
         db.session.commit()
         flash(f"Course '{course_title}' and all related content have been permanently deleted.", "success")

@@ -150,17 +150,20 @@
           </div>
         </div>
 
-        <!-- ACTIONS (UPDATED WITH MESSAGE ICON) -->
+        <!-- ACTIONS -->
         <div class="flex gap-2">
-          <button
-            class="flex-1 px-4 py-2 text-sm font-semibold rounded-md
-                   bg-emerald-600 text-white
-                   hover:bg-emerald-700
-                   focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2
-                   focus:ring-offset-gray-100 dark:focus:ring-offset-gray-950
-                   transition">
-            View Profile
-          </button>
+          <a
+          href="{{ url_for('instructor.view_student_profile', student_id=student.id) }}"
+          class="flex-1 px-4 py-2 text-sm font-semibold rounded-md
+                bg-emerald-600 text-white
+                hover:bg-emerald-700
+                focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2
+                focus:ring-offset-gray-100 dark:focus:ring-offset-gray-950
+                transition text-center"
+        >
+          View Profile
+        </a>
+
           
           <!-- MESSAGE ICON BUTTON -->
           <button

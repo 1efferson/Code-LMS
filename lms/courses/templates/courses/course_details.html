@@ -43,7 +43,7 @@
                 <button
                   type="submit"
                   class="bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-white font-semibold px-8 py-3 rounded-xl transition duration-200 shadow-md hover:shadow-lg"
-                >
+                title=" Enroll in {{ course.instructor.name }}'s course '{{ course.title }}'">
                   Enroll Now
                 </button>
               </form>
@@ -57,7 +57,7 @@
             {% endif %}
           </div>
 
-          <!-- ✨ NEW: Message Instructor Button (Only for Students) -->
+          <!--Message Instructor Button (Only for Students) -->
           {% if current_user.is_authenticated and current_user.role == 'student' and course.instructor %}
             <button
               onclick="openInstructorMessage('{{ course.instructor.name }}', '{{ course.instructor.email }}', {{ course.instructor.id }}, '{{ course.title }}')"
@@ -68,18 +68,6 @@
               <span>Message Instructor</span>
             </button>
           {% endif %}
-          {% if current_user.is_authenticated 
-              and current_user.role == 'student' 
-              and course.instructor %}
-            <a href="{{ url_for('messaging.conversation', user_id=course.instructor.id) }}"
-              class="inline-flex items-center gap-2 bg-gray-200 dark:bg-gray-800
-                      hover:bg-gray-300 dark:hover:bg-gray-700
-                      text-gray-800 dark:text-gray-200 font-semibold
-                      px-5 py-2 rounded-lg transition shadow-sm">
-              <i class="fas fa-comments"></i>
-              <span>View Conversation</span>
-            </a>
-            {% endif %}
           {% if current_user.is_authenticated and current_user.role == 'student' and course.instructor %}
             <a
               href="{{ url_for('messaging.conversation', user_id=course.instructor.id) }}"
@@ -199,7 +187,7 @@
   </div> <!-- End container -->
 </section>
 
-<!-- ✨ NEW: Message Instructor Modal -->
+<!--  NEW: Message Instructor Modal -->
 {% if current_user.is_authenticated and current_user.role == 'student' %}
 <div id="instructor-message-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
   
@@ -444,7 +432,7 @@ async function sendInstructorMessage() {
       document.getElementById('instructor-char-count').textContent = '0';
 
       //Get redirect URL dynamically from Flask
-      const conversationUrl = "{{ url_for('messaging.conversation', user_id='__USER_ID__') }}".replace('__USER_ID__', formData.get('receiver_id'));
+      const conversationUrl = "{{ url_for('messaging.conversation', user_id=0) }}".replace('/0', `/${formData.get('receiver_id')}`);
       console.log('Redirecting instructor to conversation:', conversationUrl);
 
       setTimeout(() => {

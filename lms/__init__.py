@@ -1,6 +1,7 @@
 # lms/__init__.py
 
-from flask import Flask
+import os
+from flask import Flask, app
 from .extensions import db, login_manager, csrf, bcrypt, migrate
 from flask_mail import Mail
 import logging
@@ -64,6 +65,9 @@ def create_app(config_object='config.Config'):
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
     app.register_blueprint(instructor, url_prefix='/instructor')
     app.register_blueprint(messaging, url_prefix='/messages')  # ← NEW: Register messaging blueprint
+    
+    # Ensure upload folder exists
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Import models for Alembic
     from . import models 

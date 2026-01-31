@@ -4,11 +4,12 @@
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+import os
 
 # Auto-detect environment and load appropriate .env file
-env = os.getenv('FLASK_ENV', 'production')
+ENV  = os.getenv('FLASK_ENV', "development")
 
-if env == 'development':
+if ENV == 'development':
     load_dotenv('.env.development')
     print(" Development Mode: Using SQLite (Fast!)")
 else:
@@ -18,7 +19,7 @@ else:
 
 class Config:
     # Environment
-    ENV = os.getenv('FLASK_ENV', 'production')
+    ENV = ENV 
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
     # Security
@@ -61,3 +62,21 @@ class Config:
     # Cache
     CACHE_TYPE = "SimpleCache"
     CACHE_DEFAULT_TIMEOUT = 300
+
+    # File Uploads
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'lms/courses/static/uploads')
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB 
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+    # Storage configuration
+    STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'local') 
+    
+    # Local storage settings
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'lms/courses/static/uploads')
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    
+    # Cloudinary settings
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')

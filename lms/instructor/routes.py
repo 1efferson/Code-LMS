@@ -63,3 +63,46 @@ def course_students(course_id):
         course=course,
         students=students_data
     )
+
+@instructor.route('/students/<int:student_id>/profile')
+@login_required
+def view_student_profile(student_id):
+    student = User.query.get_or_404(student_id)
+
+    # Optional: ensure instructor actually teaches this student
+    taught_courses = Course.query.filter_by(instructor_id=current_user.id).all()
+    taught_course_ids = [c.id for c in taught_courses]
+
+    is_enrolled = Enrollment.query.filter(
+        Enrollment.user_id == student.id,
+        Enrollment.course_id.in_(taught_course_ids)
+    ).first()
+
+    if not is_enrolled:
+        abort(403)
+
+    # Stats (same logic as profile, but for student)
+    courses_count = student.user_enrollments.count()
+    lessons_watched_count = student.lesson_completions.count()
+    courses_completed = student.user_enrollments.filter_by(completed=True).count()
+    active_courses = student.user_enrollments.filter_by(completed=False).count()
+
+    latest_completion = student.lesson_completions.order_by(
+        LessonCompletion.completed_at.desc()
+    ).first()
+
+    last_active = (
+        time_ago_in_words(latest_completion.completed_at)
+        if latest_completion else "New user"
+    )
+
+    return render_template(
+    'main/profile.html',
+    user=student,
+    read_only=True,
+    last_active=last_active,
+    courses_count=courses_count,
+    lessons_watched_count=lessons_watched_count,
+    courses_completed=courses_completed,
+    active_courses=active_courses
+)
