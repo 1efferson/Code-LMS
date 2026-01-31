@@ -54,8 +54,41 @@ def can_message_student(student_id):
     return enrolled is not None
 
 
+def can_student_message_instructor(instructor_id):
+    """
+    Check if current student can message this instructor.
+    Student can message instructors whose courses they're enrolled in.
+    
+    **NEW FUNCTION** - Allows students to initiate conversations.
+    """
+    if not is_student():
+        return False
+    
+    instructor = User.query.get(instructor_id)
+    if not instructor or instructor.role != 'instructor':
+        return False
+    
+    # Check if student is enrolled in any of this instructor's courses
+    from lms.models import Course, Enrollment
+    
+    instructor_courses = Course.query.filter_by(instructor_id=instructor_id).all()
+    course_ids = [course.id for course in instructor_courses]
+    
+    if not course_ids:
+        return False
+    
+    enrolled = Enrollment.query.filter(
+        and_(
+            Enrollment.user_id == current_user.id,
+            Enrollment.course_id.in_(course_ids)
+        )
+    ).first()
+    
+    return enrolled is not None
+
+
 # =====================================================
-# SEND MESSAGE (AJAX) - TWO-WAY VERSION
+# SEND MESSAGE (AJAX) - FIXED TWO-WAY VERSION
 # =====================================================
 
 @messaging.route('/send', methods=['POST'])
@@ -63,6 +96,8 @@ def can_message_student(student_id):
 def send_message():
     """
     Send a message (TWO-WAY: instructor → student OR student → instructor).
+    
+    **FIXED**: Students can now initiate conversations with their instructors.
     """
     
     form = SendMessageForm()
@@ -71,8 +106,9 @@ def send_message():
         receiver_id = int(form.receiver_id.data)
         receiver = User.query.get_or_404(receiver_id)
         
-        # ===== AUTHORIZATION LOGIC (TWO-WAY) =====
+        # ===== AUTHORIZATION LOGIC (FIXED TWO-WAY) =====
         if is_instructor():
+            # Instructor messaging student
             if not can_message_student(receiver_id):
                 return jsonify({
                     'success': False,
@@ -80,23 +116,19 @@ def send_message():
                 }), 403
         
         elif is_student():
+            # Student messaging instructor
             if receiver.role != 'instructor':
                 return jsonify({
                     'success': False,
                     'error': 'You can only message instructors'
                 }), 403
             
-            prior_message = Message.query.filter(
-                and_(
-                    Message.sender_id == receiver_id,
-                    Message.receiver_id == current_user.id
-                )
-            ).first()
-            
-            if not prior_message:
+            #  Check if student is enrolled in instructor's courses
+            # (Removed the requirement for instructor to message first)
+            if not can_student_message_instructor(receiver_id):
                 return jsonify({
                     'success': False,
-                    'error': 'You can only reply to instructors who have messaged you first'
+                    'error': 'You can only message instructors whose courses you are enrolled in'
                 }), 403
         
         else:
@@ -118,7 +150,7 @@ def send_message():
             return jsonify({
                 'success': True,
                 'message': 'Message sent successfully!',
-                'receiver_id': receiver_id,  # ✅ Include this
+                'receiver_id': receiver_id,
                 'data': {
                     'id': message.id,
                     'created_at': message.time_ago()
@@ -140,7 +172,7 @@ def send_message():
 
 
 # =====================================================
-# VIEW CONVERSATION - TWO-WAY VERSION
+# VIEW CONVERSATION - FIXED TWO-WAY VERSION
 # =====================================================
 
 @messaging.route('/conversation/<int:user_id>')
@@ -150,11 +182,13 @@ def conversation(user_id):
     View conversation between current user and another user.
     TWO-WAY: Works for instructor→student AND student→instructor.
     
+    Handles empty conversations gracefully instead of showing 403.
+    
     Security:
-    - Instructors can view conversations with their students
-    - Students can view conversations with instructors who messaged them
-
+    - Instructors can view conversations with their enrolled students
+    - Students can view conversations with instructors whose courses they're enrolled in
     """
+    
     print("Conversation access:",
       "current_user =", current_user.id,
       "other_user =", user_id,
@@ -162,8 +196,11 @@ def conversation(user_id):
     
     other_user = User.query.get_or_404(user_id)
     
-    # ===== AUTHORIZATION (TWO-WAY) =====
+    # ===== AUTHORIZATION (FIXED TWO-WAY) =====
     if is_instructor():
+        # Instructor viewing conversation with student
+        
+        # Check if there's an existing conversation
         has_conversation = Message.query.filter(
             or_(
                 and_(Message.sender_id == current_user.id, Message.receiver_id == user_id),
@@ -171,6 +208,7 @@ def conversation(user_id):
             )
         ).first()
 
+        # If no conversation exists, check if instructor CAN message this student
         if not has_conversation and not can_message_student(user_id):
             abort(403)
     
@@ -181,20 +219,14 @@ def conversation(user_id):
         if other_user.role != 'instructor':
             abort(403)
         
-        # Check 2: Must have an existing conversation
-        has_conversation = Message.query.filter(
-            or_(
-                and_(Message.sender_id == current_user.id, Message.receiver_id == user_id),
-                and_(Message.sender_id == user_id, Message.receiver_id == current_user.id)
-            )
-        ).first()
-        
-        if not has_conversation:
-            abort(403)
+        # **FIXED**: Check if student is enrolled in instructor's courses
+        # (Removed requirement for existing conversation)
+        if not can_student_message_instructor(user_id):
+            flash('You can only message instructors whose courses you are enrolled in.', 'warning')
+            return redirect(url_for('messaging.inbox'))
     
     else:
         abort(403)
-        
     
     # ===== GET MESSAGES =====
     
@@ -217,11 +249,15 @@ def conversation(user_id):
     form = SendMessageForm()
     form.receiver_id.data = user_id
     
+    # **NEW**: Pass flag to indicate if this is a new conversation
+    is_new_conversation = len(messages) == 0
+    
     return render_template(
         'messaging/conversation.html',
         messages=messages,
         other_user=other_user,
-        form=form
+        form=form,
+        is_new_conversation=is_new_conversation  # **NEW**
     )
 
 
@@ -344,11 +380,12 @@ def delete_message(message_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': 'Failed to delete message'}), 500
+
+
 # =====================================================
 # INSTRUCTOR MESSAGES OVERVIEW
 # =====================================================
 
-# Add this route after your existing routes
 @messaging.route('/instructor-messages')
 @login_required
 def instructor_messages():
