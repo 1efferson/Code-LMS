@@ -12,10 +12,9 @@ from lms.models.lesson_completion import LessonCompletion
 from sqlalchemy.orm import joinedload
 from sqlalchemy import select
 from datetime import datetime
-import json # <--- ADDED: Import json module
 
 # -------------------------------
-#  Course Catalog
+#  Course Catalog
 # -------------------------------
 @courses.route('/') 
 @login_required
@@ -30,32 +29,16 @@ def index():
 
     courses_list = db.session.execute(stmt).scalars().all()
 
-    # --- START: Load Lottie Data Directly from File ---
-    lottie_data = None
-    try:
-        # Construct the full path to the JSON file relative to the application's root (lms folder)
-        # File is expected at: lms/courses/static/lottie/streak.json
-        json_path = current_app.root_path + '/courses/static/lottie/streak.json'
-        with open(json_path, 'r') as f:
-            lottie_data = json.load(f)
-    except FileNotFoundError:
-        # Log error if file not found
-        print(f"Lottie file not found at: {json_path}") 
-    except Exception as e:
-        # Log other potential loading errors
-        print(f"Error loading Lottie JSON: {e}")
-    # --- END: Load Lottie Data ---
 
     return render_template(
         'courses/courses_catalog.html', 
         courses=courses_list, 
-        today=datetime.utcnow(),
-        lottie_animation=lottie_data # <--- PASSING THE DATA
+        today=datetime.utcnow()
     )
 
 
 # -------------------------------
-#  Course Detail Page
+#  Course Detail Page
 # -------------------------------
 @courses.route('/<slug>')
 @login_required
@@ -82,7 +65,7 @@ def course_detail(slug):
 
 
 # -------------------------------
-#  Enroll in a Course
+#  Enroll in a Course
 # -------------------------------
 @courses.route('/<slug>/enroll', methods=['POST'])
 @login_required
@@ -102,11 +85,20 @@ def enroll(slug):
     db.session.commit()
 
     flash('You have successfully enrolled in this course!', 'success')
-    return redirect(url_for('courses.course_lessons', slug=slug))
+    
+    # Check if course has any modules/lessons before redirecting**
+    first_module = course.modules.order_by(Module.order).first()
+    if first_module and first_module.lessons.first():
+        # Course has lessons, redirect to lessons page
+        return redirect(url_for('courses.course_lessons', slug=slug))
+    else:
+        # Course has no content yet, redirect back to course detail with message
+        flash('This course content is coming soon! Check back later.', 'info')
+        return redirect(url_for('courses.course_detail', slug=slug))
 
 
 # -------------------------------
-#  Course Lessons Page (Initial redirection to first lesson)
+#  Course Lessons Page (Initial redirection to first lesson)
 # -------------------------------
 @courses.route('/<slug>/lessons')
 @login_required
@@ -125,26 +117,21 @@ def course_lessons(slug):
     first_module = course.modules.order_by(Module.order).first()
     first_lesson = None
     if first_module:
-        first_lesson = first_module.lessons.order_by(Lesson.order).first() # Use order_by(Lesson.order) if possible
+        first_lesson = first_module.lessons.order_by(Lesson.order).first()
     
-    # If there's a first lesson, redirect to the specific lesson player route
+    # If there's a first lesson, redirect to the specific lesson player route**
     if first_lesson:
         return redirect(url_for('courses.course_lesson', 
                                  course_slug=course.slug, 
                                  lesson_slug=first_lesson.slug))
 
-    # If there are no lessons at all yet, show a placeholder page
-    flash('Lessons are coming soon for this course!', 'info')
-    return render_template(
-        'courses/course_lessons.html',
-        course=course,
-        current_lesson=None,  # No lesson to play
-        modules=course.modules.order_by(Module.order).all() # Pass modules for sidebar
-    )
+    #  If there are no lessons at all yet, redirect back to course detail**
+    flash('This course content is coming soon! No lessons available yet.', 'info')
+    return redirect(url_for('courses.course_detail', slug=slug))
 
 
 # -------------------------------
-#  Specific Lesson Player (Combined Logic)
+#  Specific Lesson Player (Combined Logic)
 # -------------------------------
 @courses.route('/<course_slug>/lessons/<lesson_slug>', methods=['GET', 'POST'])
 @login_required
@@ -190,7 +177,7 @@ def course_lesson(course_slug, lesson_slug):
     )
 
 # -------------------------------
-#  Mark Lesson as Complete
+#  Mark Lesson as Complete
 # -------------------------------
 @courses.route('/<lesson_slug>/complete', methods=['POST'])
 @login_required
@@ -227,7 +214,7 @@ def mark_lesson_complete(lesson_slug):
 
 
 # -------------------------------
-#  Unmark Lesson as Complete
+#  Unmark Lesson as Complete
 # -------------------------------
 @courses.route('/<lesson_slug>/unmark', methods=['POST'])
 @login_required
